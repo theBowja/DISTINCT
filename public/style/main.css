@@ -1,0 +1,36 @@
+.login-container {
+	top: 25%;
+	position: relative;
+	padding: 1.5rem;
+
+
+	border: solid #f7f7f9;
+	border-width: .2rem;
+
+	min-width: 16rem;
+	max-width: 34rem;
+
+	margin: auto;
+
+	/*
+	margin: 1rem -1rem;
+	margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+
+
+	/*
+	margin-right: auto;
+	margin-left: auto;
+	*/
+}
+
+button {
+	/* no idea how to put button on right side
+	float: right;
+	*/
+}
+
+.tregist {
+	float: right;
+}

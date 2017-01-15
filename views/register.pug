@@ -1,0 +1,25 @@
+html(lang='en')
+  head
+    meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
+    title register
+    link(rel='stylesheet', href='bootstrap.min.css')
+    link(rel='stylesheet', href='main.css')
+  body
+    .login-container
+      form(method='post')
+        h2 Register your account!
+        h3 some company name
+        .form-group
+          label.sr-only(for='usr') Username
+          input#usr.form-control(type='text', name='username', placeholder='Username', required='')
+        .form-group
+          label.sr-only(for='eml') Email
+          input#eml.form-control(type='text', name='email', placeholder='Email', required='')
+        .form-group
+          label.sr-only(for='pwd') Password
+          input#pwd.form-control(type='password', name='password', placeholder='Password', required='')
+        .form-group
+          label.sr-only(for='adm') isAdmin?
+          input#adm.form-control(type='text', name='admin', placeholder='true/false', required='')
+        |  
+        button.btn.btn-primary(type='submit') Create new account

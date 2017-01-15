@@ -1,0 +1,21 @@
+{
+  "name": "ex-tokamak_cloudant_nodejs",
+  "version": "0.0.2",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "body-parser": "1.14.x",
+    "bootstrap": "3.3.x",
+    "cloudant": "1.4.x",
+    "express": "4.13.x",
+    "express-session": "^1.14.2",
+    "pug": "2.0.0-beta6",
+    "stylus": "0.54.x"
+  },
+  "repository": {},
+  "engines": {
+    "node": "4.x"
+  }
+}
