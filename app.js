@@ -1,9 +1,8 @@
-var express = require('express');
-var http = require('http');
+var express = require('express'), http = require('http');
+var app = express();
 var path = require('path');
 var fs = require('fs');
-var app = express();
-//var config = require('./config'); // should look into making this work
+var config = require('./config'); // should look into making this work
 //var routes = require('./routes');
 var session = require('express-session');
 
@@ -11,16 +10,11 @@ var db;
 
 var cloudant;
 
-var dbCredentials = {
-	dbName : 'identity_db'
-};
-
 var bodyParser = require('body-parser');
 
 // all environments
 app.set('view engine', 'pug');
 app.set('views', __dirname + '/views');
-app.set('port', process.env.PORT || 3000);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true })); // true doesn't/does (I forgot) support nested data structures
 app.use(bodyParser.json());
@@ -37,33 +31,35 @@ app.use(session({
 	}
 }));
 
+//app.use('/', routes);
+
 function initDBConnection() {
 	
 	if(process.env.VCAP_SERVICES && false) {
-		var vcapServices = JSON.parse(process.env.VCAP_SERVICES);
+		// instanceName is required if I have more than one Cloudant service
+		var cloudant = require('cloudant')({vcapServices: JSON.parse(process.env.VCAP_SERVICES)}, function(err, cloudant) {
+			if( err)
+				return console.log('Failed to initialize Cloudant: ' + err);
+
+			// check if DB exists if not create
+			cloudant.db.create(config.dbCredentials.dbName, function(err, res) {
+				if (err) console.log( err.message);
+			});
+
+			db = cloudant.use(config.dbCredentials.dbName);
+		});
+
 		// Pattern match to find the first instance of a Cloudant service in
 		// VCAP_SERVICES. If you know your service key, you can access the
 		// service credentials directly by using the vcapServices object.
-		for(var vcapService in vcapServices){
-			if(vcapService.match(/cloudant/i)){
-				dbCredentials.host = vcapServices[vcapService][0].credentials.host;
-				dbCredentials.port = vcapServices[vcapService][0].credentials.port;
-				dbCredentials.user = vcapServices[vcapService][0].credentials.username;
-				dbCredentials.password = vcapServices[vcapService][0].credentials.password;
-				dbCredentials.url = vcapServices[vcapService][0].credentials.url;
-				
-				cloudant = require('cloudant')(dbCredentials.url);
-				
-				// check if DB exists if not create
-				cloudant.db.create(dbCredentials.dbName, function(err, res) {
-					if (err) { console.log('could not create db '/*, err*/); }
-				});
-				
-				db = cloudant.use(dbCredentials.dbName);
-				break;
-			}
-		}
-		if(db===null){
+		// for(var vcapService in vcapServices){
+		//  if(vcapService.match(/cloudant/i)){
+		// 		dbCredentials.host = vcapServices[vcapService][0].credentials.host;
+		// 		//etc.
+		// 	}
+		// }
+
+		if(db===null) { //strict equality
 			console.warn('Could not find Cloudant credentials in VCAP_SERVICES environment variable - data will be unavailable to the UI');
 		}
 	} else{
@@ -73,31 +69,26 @@ function initDBConnection() {
 		// Variables section for an app in the Bluemix console dashboard).
 		// Alternately you could point to a local database here instead of a 
 		// Bluemix service.
-		dbCredentials.host = "990d4e89-fd4b-4e74-b708-658814e1472f-bluemix.cloudant.com";
-		dbCredentials.port = 443;
-		dbCredentials.user = "990d4e89-fd4b-4e74-b708-658814e1472f-bluemix";
-		dbCredentials.password = "dcebb7c9b72bed34c4ada2afb07cfbe4728a6a679e0e63c735dec3285cb0a32b";
-		dbCredentials.url = "https://990d4e89-fd4b-4e74-b708-658814e1472f-bluemix:dcebb7c9b72bed34c4ada2afb07cfbe4728a6a679e0e63c735dec3285cb0a32b@990d4e89-fd4b-4e74-b708-658814e1472f-bluemix.cloudant.com";
-		
-		cloudant = require('cloudant')(dbCredentials.url);
+
+		cloudant = require('cloudant')(config.dbCredentials.url);
 		
 		//check if DB exists if not create
-        	cloudant.db.create(dbCredentials.dbName, function (err, res) {
-        		if (err) { console.log('could not create db '/*, err*/); }
-        	   	else {
-        	   		var obj = { //need to check if missing params
-						"_id": "asdf",
-						"username": "asdf",
-						"email": "asdf@asdf.asdf",
-						"password": "asdf",
-						"admin": true,
-						"timecreated": new Date().toUTCString()
-					};
-					db.insert(obj);
-				}
-			});
+        cloudant.db.create(config.dbCredentials.dbName, function (err, res) {
+        	if (err) { console.log( err.message); }
+         	else {
+           		var obj = { //need to check if missing params
+					"_id": "asdf",
+					"username": "asdf",
+					"email": "asdf@asdf.asdf",
+					"password": "asdf",
+					"admin": true,
+					"timecreated": new Date().toUTCString()
+				};
+				db.insert(obj);
+			}
+		});
             
-        db = cloudant.use(dbCredentials.dbName);
+        db = cloudant.use(config.dbCredentials.dbName);
 	}
 }
 
@@ -295,11 +286,9 @@ function usertaken( user, callback) {
 	});
 }
 
-http.createServer(app).listen(app.get('port'), '0.0.0.0', function() {
-	console.log('Express server listening on port ' + app.get('port'));
-});
+app.listen(config.port);
+console.log('Express server listening on port ' + config.port);
 
-// All set, start listening!
-//var port = 3000;
-//server.listen(port);
-//debug("Express server listening on port %d in %s mode", port, process.env.NODE_ENV);
+// http.createServer(app).listen(app.get('port'), '0.0.0.0', function() {
+// 	console.log('Express server listening on port ' + app.get('port'));
+// });

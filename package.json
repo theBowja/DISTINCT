@@ -1,5 +1,5 @@
 {
-  "name": "ex-tokamak_cloudant_nodejs",
+  "name": "ex-tokamak_cloudant",
   "version": "0.0.2",
   "private": true,
   "scripts": {
@@ -17,5 +17,10 @@
   "repository": {},
   "engines": {
     "node": "4.x"
-  }
+  },
+  "main": "app.js",
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }
