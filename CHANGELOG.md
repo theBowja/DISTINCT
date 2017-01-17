@@ -28,5 +28,5 @@ Tags are:
 ### Added
 - initial commit
 
-[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v0.3.0...HEAD
-[0.0.3]: https://github.com/olivierlacan/keep-a-changelog/compare/v0.0.2...v0.0.3
+[Unreleased]: https://github.com/theBowja/cloudant-login/compare/v0.3.0...HEAD
+[0.0.3]: https://github.com/theBowja/cloudant-login/compare/v0.0.2...v0.0.3
