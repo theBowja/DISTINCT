@@ -19,6 +19,11 @@ Tags are:
 ### Changed
 - TODOs
 
+## [0.0.4]
+### Changed
+- organized paths into Express routes
+- sorted things into modules
+
 ## [0.0.3] - 2017-01-16
 ### Added
 - README and CHANGELOG
