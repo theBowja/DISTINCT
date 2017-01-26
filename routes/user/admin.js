@@ -1,5 +1,5 @@
 var userAdmin = require('express').Router();
-var database = require('../../database');
+var db = require('../../database');
 
 // middleware
 // user must be admin
@@ -13,7 +13,7 @@ userAdmin.use(function(req,res,next) {
 userAdmin.get('/list', function(req,res) {
 	console.log("GET request for /list");
 
-	database.db.list( {include_docs: true}, function(err, body) {
+	db.list( {include_docs: true}, function(err, body) {
   		if (!err) {
 			//res.send(body.rows[0].value);
 			console.log(body);
@@ -46,7 +46,7 @@ userAdmin.post('/register', function (req, res) {
 				"timecreated": new Date().toUTCString()
 			};
 
-			database.db.insert(obj, function(err, body){
+			db.insert(obj, function(err, body){
 				if(err) {
 					res.status(500).send("cannot insert document into database"); // will need an error handler
 				} else {
@@ -61,11 +61,11 @@ userAdmin.post('/register', function (req, res) {
 });
 
 function usertaken( user, callback) {
-	database.db.list(function(err, data) { //list ids of documents in db
+	db.list(function(err, data) { //list ids of documents in db
   		if (err)
   			callback(500, "cannot list documents in database");
   		else{
-      		database.db.get(user,function(err,body){ //get the document
+      		db.get(user,function(err,body){ //get the document
       			if(err)
       				callback(null);
       			else

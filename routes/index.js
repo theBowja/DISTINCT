@@ -1,7 +1,7 @@
 var routes = require('express').Router();
 var user = require('./user');
 
-var database = require('../database');
+var db = require('../database');
 
 routes.use('/user', user);
 
@@ -38,11 +38,11 @@ routes.post('/login', function (req, res) {
 });
 
 function validate( user, pass, callback) {
-	database.db.list(function(err, data) { //list ids of documents in db
+	db.list(function(err, data) { //list ids of documents in db
   		if (err) return callback(500, "cannot list documents in database");
 
  		console.log(data.rows[0]);
-  		database.db.get(user, function(err,doc) { //get the document
+  		db.get(user, function(err,doc) { //get the document
     		if(err) return callback(401, "username doesn't exist");
   			
   			if( doc.password == pass) {

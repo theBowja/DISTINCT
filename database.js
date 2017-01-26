@@ -1,9 +1,6 @@
 var config = require('./config');
 
-var database = {};
-
-//var cloudant;
-//var db;
+var db;
 
 initDBConnection = function() {
 	if(process.env.VCAP_SERVICES && false) {
@@ -17,7 +14,7 @@ initDBConnection = function() {
 				if (err) console.log( err.message);
 			});
 
-			database.db = cloudant.use(config.dbCredentials.dbName);
+			db = cloudant.use(config.dbCredentials.dbName);
 		});
 
 		// Pattern match to find the first instance of a Cloudant service in
@@ -30,7 +27,7 @@ initDBConnection = function() {
 		// 	}
 		// }
 
-		if(database.db===null) { //strict equality
+		if(db===null) { //strict equality
 			console.warn('Could not find Cloudant credentials in VCAP_SERVICES environment variable - data will be unavailable to the UI');
 		}
 	} else{
@@ -43,11 +40,11 @@ initDBConnection = function() {
 
 		var cloudant = require('cloudant')(config.dbCredentials.url);
 		
-		//check if DB exists if not create
+		// check if DB exists if not create
         cloudant.db.create(config.dbCredentials.dbName, function (err, res) {
         	if (err) { console.log( err.message); }
          	else {
-           		var obj = { //need to check if missing params
+           		var obj = { // need to check if missing params
 					"_id": "asdf",
 					"username": "asdf",
 					"email": "asdf@asdf.asdf",
@@ -55,14 +52,14 @@ initDBConnection = function() {
 					"admin": true,
 					"timecreated": new Date().toUTCString()
 				};
-				database.db.insert(obj);
+				db.insert(obj);
 			}
 		});
             
-        database.db = cloudant.use(config.dbCredentials.dbName);
+        db = cloudant.use(config.dbCredentials.dbName);
 	}
 };
 
+initDBConnection();
 
-
-module.exports = database;
+module.exports = db;

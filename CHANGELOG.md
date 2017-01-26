@@ -13,11 +13,11 @@ Tags are:
 - ```Security``` to invite users to upgrade in case of vulnerabilities.
 
 ## [Unreleased]
-### Added
-- TODOs
 
+
+## [0.0.5]
 ### Changed
-- TODOs
+- changed how database module is exported
 
 ## [0.0.4]
 ### Changed
