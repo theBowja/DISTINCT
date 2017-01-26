@@ -6,8 +6,8 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "body-parser": "1.14.x"
-,    "bootstrap": "3.3.x",
+    "body-parser": "1.14.x",
+    "bootstrap": "3.3.x",
     "cloudant": "1.4.x",
     "express": "4.13.x",
     "express-session": "^1.14.2",

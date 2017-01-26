@@ -1,23 +1,16 @@
 var express = require('express'), app = express(), http = require('http'), session = require('express-session');
 var path = require('path'), fs = require('fs');
 
-var config = require('./config'); // should look into making this work
+var config = require('./config'); // I think this is how a config file should work
 var routes = require('./routes');
 
 var database = require('./database');
 
-var cloudant;
-
-var bodyParser = require('body-parser');
-
-// all environments
-app.set('view engine', 'pug');
-app.set('views', __dirname + '/views');
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(bodyParser.urlencoded({ extended: true })); // true doesn't/does (I forgot) support nested data structures
+var bodyParser = require('body-parser'); // needed to touch body
+app.use(bodyParser.urlencoded({ extended: true })); // populates object with key-value pairs. value can be string or array when extended: false, or any type when extended: true.
 app.use(bodyParser.json());
-app.use(express.static(__dirname + '/public/style'));
-app.use(express.static(__dirname + '/node_modules/bootstrap/dist/css'));
+
+// using express-session
 app.use(session({
 	secret: 'bunny buddy',
 	resave: true,
@@ -29,14 +22,20 @@ app.use(session({
 	}
 }));
 
-app.use('/', routes);
+// all environments or paths and such
+app.set('view engine', 'pug');
+app.set('views', __dirname + '/views');
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname + '/public/style'));
+app.use(express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 
 initDBConnection();
+
+app.use('/', routes);
 
 app.get('/session', function(req,res) {
 	res.send(req.session);
 });
-
 
 app.get('/dbinit', function (req, res) {
 	console.log("GET request for /dbinit");

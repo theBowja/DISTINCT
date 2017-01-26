@@ -10,12 +10,27 @@ userAdmin.use(function(req,res,next) {
 		next();
 });
 
+userAdmin.get('/list', function(req,res) {
+	console.log("GET request for /list");
+
+	database.db.list( {include_docs: true}, function(err, body) {
+  		if (!err) {
+			//res.send(body.rows[0].value);
+			console.log(body);
+			res.send(body);
+
+   		}
+    });
+	
+	//res.end();//res.rend('userlist');
+});
+
 userAdmin.get('/register', function(req, res) {
 	console.log("GET request for /register");
 	res.render('register');
 });
 
-userAdmin.post('/register', requireAdmin, function (req, res) {
+userAdmin.post('/register', function (req, res) {
 	console.log("POST request for /register");
 
 	usertaken( req.body.username, function(err, message) {
@@ -61,4 +76,4 @@ function usertaken( user, callback) {
 	});
 }
 
-module.exports = userAdmin;
+module.exports = userAdmin; 

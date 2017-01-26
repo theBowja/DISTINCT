@@ -2,6 +2,7 @@ var config = require('./config');
 
 var database = {};
 
+//var cloudant;
 //var db;
 
 initDBConnection = function() {
@@ -40,7 +41,7 @@ initDBConnection = function() {
 		// Alternately you could point to a local database here instead of a 
 		// Bluemix service.
 
-		cloudant = require('cloudant')(config.dbCredentials.url);
+		var cloudant = require('cloudant')(config.dbCredentials.url);
 		
 		//check if DB exists if not create
         cloudant.db.create(config.dbCredentials.dbName, function (err, res) {

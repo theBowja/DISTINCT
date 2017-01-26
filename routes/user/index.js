@@ -18,6 +18,7 @@ user.get('/', function(req,res) {
 	res.redirect('dashboard');
 });
 
+// user/dashboard
 user.get('/dashboard', function(req, res) {
 	console.log("GET request for /user/dashboard");
 	if( req.session.admin)
