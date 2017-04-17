@@ -34,3 +34,12 @@ button {
 .tregist {
 	float: right;
 }
+
+.addBtn {
+  position: absolute;
+  right: 20px;
+  top: 0px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}

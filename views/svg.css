@@ -1,0 +1,46 @@
+.nodes circle {
+    /*fill: #000;*/
+    stroke: none;
+    stroke-width: 3px;
+    cursor: pointer;
+}
+
+.links line {
+    stroke: #777;
+    stroke-width: 4px;
+}
+
+.forms foreignObject {
+	width: 300px;
+	height: 250px;
+	border: 1px solid lightgrey;
+/*				background-color: #F1F1F1; */
+}
+
+.close-custom { /* copied from bootstrap's */
+	-webkit-appearance: none;
+	padding: 0;
+	cursor: pointer;
+	background: transparent;
+	border: 0;
+
+	float: right;
+	font-size: 21px;
+	font-weight: bold;
+	line-height: 1;
+	color: #CCC;
+	text-shadow: 0 1px 0 #fff;
+
+/*				filter: alpha(opacity=20); 
+	opacity: 0.2;*/             /* for some reason this doesn't work for me */ 
+}
+
+.close-custom:hover, .close-custom:focus {
+	color: #7F7F7F;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+option {
+	font-size: 16px;
+}

@@ -6,6 +6,7 @@ var routes = require('./routes');
 
 var db = require('./database');
 
+// Warning: http://andrewkelley.me/post/do-not-use-bodyparser-with-express-js.html
 var bodyParser = require('body-parser'); // needed to touch body
 app.use(bodyParser.urlencoded({ extended: true })); // populates object with key-value pairs. value can be string or array when extended: false, or any type when extended: true.
 app.use(bodyParser.json());
@@ -22,9 +23,13 @@ app.use(session({
 	}
 }));
 
-// all environments or paths and such
+// Configure jade as template engine
 app.set('view engine', 'pug');
 app.set('views', __dirname + '/views');
+
+app.use(express.static(__dirname + '/views'));//temp
+
+// Serve static content from "public" directory
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname + '/public/style'));
 app.use(express.static(__dirname + '/node_modules/bootstrap/dist/css'));

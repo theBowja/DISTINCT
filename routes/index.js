@@ -7,6 +7,11 @@ routes.use('/user', user);
 
 routes.get('/', function(req, res) {
 	console.log("GET request for /");
+
+	var d3 = require('d3');
+
+
+
 	res.render('main');
 	//res.send('There\'s nothing here');
 });
