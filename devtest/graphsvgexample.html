@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>SVG</title>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/ajv/5.0.0/ajv.min.js"></script>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<!-- <script src="jsnetworkx.js"></script> -->
+		<link rel="stylesheet" href="svg.css">
+<!-- 		<script src="svg.js"></script>
+ -->
+	</head>
+	<body>
+		<button type="button" onclick="import_action()">import</button>
+		<input type="file">
+		<button type="button" onclick="export_action()">export</button></br>
+		<textarea></textarea></br>
+		<svg width="960" height="600" style="border: 1px solid black;"></svg>
+		<script type="text/javascript" src="svg.js"></script>
+
+		<script type="text/javascript" src="topologySchema.js"></script>
+		<script>
+		function import_action() {
+			var ajv = Ajv({ $data: true, allErrors: true});
+			ajv.addKeyword('containsNodeName', { $data:true, "validate": function (schema, data, parentSchema, currentDataPath, parentDataObject, parentProperty, rootData) {
+				for (let node of rootData.nodes) {
+					if( node.name === data)
+						return true;
+				}
+				return false;
+			}, "errors": false });
+
+			var schema = topologySchema;
+
+			var validate = ajv.compile(schema);
+
+			//var data = { "nodes": [{ "name": "My phone", "color": "black" }, { "name": "My router", "color": "black" }], "links": [{ "source": "Me router", "target": "Me router" }] };
+			var data = JSON.parse(d3.select("textarea").property("value"));
+
+			var valid = validate(data);
+
+			if(valid) {
+				svg_import(data.nodes, data.links);
+			}
+
+			if (!valid) console.log('Invalid import: ' + ajv.errorsText(validate.errors));
+		}
+
+		function export_action() {
+			var derp =  { "version": "0.0.0", "nodes": nodes, "links": links };
+
+			d3.select("textarea").property("value", JSON.stringify(derp));
+		}
+		</script>
+
+
+
+	</body>
+</html>
