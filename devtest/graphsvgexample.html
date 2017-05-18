@@ -22,9 +22,9 @@
 		<script type="text/javascript" src="topologySchema.js"></script>
 		<script>
 		function import_action() {
-			var ajv = Ajv({ $data: true, allErrors: true});
+			var ajv = Ajv({ $data: true, allErrors: true, removeAdditional: true});
 			ajv.addKeyword('containsNodeName', { $data:true, "validate": function (schema, data, parentSchema, currentDataPath, parentDataObject, parentProperty, rootData) {
-				for (let node of rootData.nodes) {
+				for (let node of rootData.nodes) { // not supported in all browsers
 					if( node.name === data)
 						return true;
 				}
@@ -32,7 +32,6 @@
 			}, "errors": false });
 
 			var schema = topologySchema;
-
 			var validate = ajv.compile(schema);
 
 			//var data = { "nodes": [{ "name": "My phone", "color": "black" }, { "name": "My router", "color": "black" }], "links": [{ "source": "Me router", "target": "Me router" }] };
@@ -40,17 +39,18 @@
 
 			var valid = validate(data);
 
-			if(valid) {
-				svg_import(data.nodes, data.links);
-			}
-
-			if (!valid) console.log('Invalid import: ' + ajv.errorsText(validate.errors));
+			if (valid)
+				svg_import(data);
+				//svg_import(data.nodes, data.links);
+			else
+				console.log('Invalid import: ' + ajv.errorsText(validate.errors));
 		}
 
 		function export_action() {
-			var derp =  { "version": "0.0.0", "nodes": nodes, "links": links };
+			var jsonexport = svg_export();
+			//var jsonexpert =  { "version": "0.0.0", "nodes": svg_export(), "links": links };
 
-			d3.select("textarea").property("value", JSON.stringify(derp));
+			d3.select("textarea").property("value", JSON.stringify(jsonexport));
 		}
 		</script>
 

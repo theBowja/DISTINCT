@@ -1,9 +1,10 @@
-var topologySchema = { 	
+var topologySchema = {
 	"type": "object",
 	"properties": {
 		"nodes": {
 			"type": "array",
 			"items": {
+				"additionalProperties": false,
 			    "type": "object",
 			    "properties": {
 			    	"name": { "type": "string" },
