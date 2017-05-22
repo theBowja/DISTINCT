@@ -14,6 +14,26 @@ Tags are:
 
 ## [Unreleased]
 
+## [0.0.9] - 2017-05-22
+### Added
+- wip toolbox
+
+## [0.0.8] - 2017-05-18
+### Changed
+- put svg code in a closure
+
+## [0.0.7] - 2017-04-23
+### Added
+- devtest folder for working with svg
+- import and export with validation based on JSON schema
+### Changed
+- refactored node creation into addNodes(nodes) function
+### Removed
+- some unused files
+
+## [0.0.6] - 2017-03-20
+### Added
+- SVG
 
 ## [0.0.5]
 ### Changed
