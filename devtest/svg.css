@@ -46,6 +46,22 @@ textarea {
 	cursor: pointer;
 }
 
+/*#toolbox-media-box {
+	fill: lightgrey;
+}
+
+#toolbox-media-button:hover #toolbox-media-box, #toolbox-media-button:focus #toolbox-media-box {
+	fill: grey;
+}*/
+
+.toolbox-box {
+	fill: lightgrey;
+}
+
+.toolbox-button:hover .toolbox-box, .toolbox-button .toolbox-box {
+	fill: grey;
+}
+
 option {
 	font-size: 16px;
 }

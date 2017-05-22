@@ -16,7 +16,9 @@
 		<input type="file">
 		<button type="button" onclick="export_action()">export</button></br>
 		<textarea></textarea></br>
-		<svg width="960" height="600" style="border: 1px solid black;"></svg>
+		<svg width="960" height="600" style="border: 1px solid black;">
+		
+		</svg>
 		<script type="text/javascript" src="svg.js"></script>
 
 		<script type="text/javascript" src="topologySchema.js"></script>
@@ -40,14 +42,14 @@
 			var valid = validate(data);
 
 			if (valid)
-				svg_import(data);
+				SVGGRAPH.svg_import(data);
 				//svg_import(data.nodes, data.links);
 			else
 				console.log('Invalid import: ' + ajv.errorsText(validate.errors));
 		}
 
 		function export_action() {
-			var jsonexport = svg_export();
+			var jsonexport = SVGGRAPH.svg_export();
 			//var jsonexpert =  { "version": "0.0.0", "nodes": svg_export(), "links": links };
 
 			d3.select("textarea").property("value", JSON.stringify(jsonexport));
