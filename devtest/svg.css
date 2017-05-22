@@ -58,10 +58,15 @@ textarea {
 	fill: lightgrey;
 }
 
-.toolbox-button:hover .toolbox-box, .toolbox-button .toolbox-box {
+.toolbox-button:hover .toolbox-box {
 	fill: grey;
 }
 
 option {
 	font-size: 16px;
+}
+
+svg {
+	user-select:none;
+	cursor:default;
 }
