@@ -14,6 +14,10 @@ Tags are:
 
 ## [Unreleased]
 
+## [0.0.10] - 2017-05-23
+### Added
+- can play/pause simulation now
+
 ## [0.0.9] - 2017-05-22
 ### Added
 - wip toolbox
