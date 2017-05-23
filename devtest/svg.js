@@ -4,6 +4,9 @@ var SVGGRAPH = (function() {
 	width = +svg.attr("width"),
 	height = +svg.attr("height");
 
+
+	var txtdmp = {"version":"0.0.1","nodes":[{"name":"My phone","color":"black","index":0,"x":461.2960405859041,"y":277.92884126106566,"vy":0.00012863524492965942,"vx":-0.00005998378344618709},{"name":"My laptop","color":"black","index":1,"x":498.3585749771392,"y":331.1443928567981,"vy":0.0003382745034393672,"vx":-0.00004791681585219554},{"name":"My tablet","color":"black","index":2,"x":511.9092850879242,"y":275.92844260557075,"vy":0.0005477273101865026,"vx":-0.00012739247996039184},{"name":"My computer","color":"black","index":3,"x":520.9278666139944,"y":304.5713866318403,"vy":0.000235276103997298,"vx":-0.0002378772954907092},{"name":"My tv","color":"black","index":4,"x":486.61810502198665,"y":265.43091965925606,"vy":0.0004097001932323695,"vx":0.0000323610571067794},{"name":"My router","color":"black","index":5,"x":487.0923152995146,"y":299.56160184746017,"vy":0.00041233983140895265,"vx":-0.00027013610325591714},{"name":"The internet","color":"black","index":6,"x":453.0860224586336,"y":317.5118684304733,"vy":0.0004637310243122259,"vx":-0.0002255792134990494},{"name":"Someone else's router","color":"green","index":7,"x":420.710626140119,"y":327.9257029767107,"vy":0.0006205849636372653,"vx":-0.00022729014994553914}],"links":[{"source":"My laptop","target":"My router"},{"source":"My tablet","target":"My router"},{"source":"My phone","target":"My router"},{"source":"My computer","target":"My router"},{"source":"My tv","target":"My router"},{"source":"My router","target":"The internet"},{"source":"The internet","target":"Someone else's router"}]};
+
 	// put all this into a json
 	var nodes = [
 		{ "name": "My phone", "color": "black" },
@@ -24,6 +27,8 @@ var SVGGRAPH = (function() {
 		{ "source": "My router", "target": "The internet" },
 		{ "source": "The internet", "target": "Someone else's router" },
 	];
+	nodes = txtdmp.nodes;
+	links = txtdmp.links;
 	var clonedlinks = JSON.parse(JSON.stringify(links)); // clones the array
 
 	var link = svg.append("g")
@@ -38,11 +43,6 @@ var SVGGRAPH = (function() {
 	 	.attr("class", "forms")
 		;
 
-	var toolBox = svg.append("g")
-		.attr("id", "toolbox")
-		.attr("transform", "translate(10,10)");
-	initToolbar(toolBox); // idk conventions for init
-
 	var simulation = d3.forceSimulation()
 	   	.force("link", d3.forceLink().id(function(d) { return d.name; })) // force link with id specified
 	    .force("charge", d3.forceManyBody())
@@ -53,6 +53,27 @@ var SVGGRAPH = (function() {
 		.on('tick', tick);
 	simulation.force("link")
 		.links(clonedlinks);
+
+	var control = { // controls the simulation: play/pause, cursor type, etc.
+		playState: false, // default
+		updateMediaButton: function(state) {
+			if(state === undefined || typeof state !== 'boolean') state = this.playState;
+			if( state === true) {
+				d3.select("#media-path").attr("d", "M6 19h4V5H6v14zm8-14v14h4V5h-4z"); // pause icon
+				d3.select("#media-title").text("Click to pause simulation (currently running)");
+				simulation.alpha(0.3).restart();
+			} else if( state === false) {
+				d3.select("#media-path").attr("d", "M8 5v14l11-7z"); // play icon
+				d3.select("#media-title").text("Click to resume simuation (currently paused)");
+				simulation.stop();
+			}
+			tick(); // puts nodes/links into their expected places
+		}
+	};
+	var toolBox = svg.append("g")
+		.attr("id", "toolbox")
+		.attr("transform", "translate(10,10)");
+	initToolbar(toolBox); // idk conventions for init
 
 	function addNodes(nodes) {
 		node = svg.select("g.nodes").selectAll("circles") // TODO: figure out why I need to assign this (https://github.com/d3/d3/issues/1041)
@@ -78,7 +99,7 @@ var SVGGRAPH = (function() {
 	function initToolbar(toolBox) {
 		// makes a clipping of the outline which we'll use to cut off extraneous background
 		var clip = toolBox.append("defs").append("clipPath")
-			.attr("id", "toolclipBox")
+			.attr("id", "toolclipBox");
 		clip.append("rect")
 			.attr("id", "toolBox")
 			.attr("width", 24)
@@ -91,31 +112,24 @@ var SVGGRAPH = (function() {
 
 		toolBox.attr("clip-path", "url(#toolclipBox)");
 
-		// PLAY ICON
+		// MEDIA ICON
 		var mediabutton = toolBox.append("g")
 			.attr("class", "toolbox-button")
 			.attr("transform", "translate(0,0)")
-			.on("click", (function() { // when user clicks this, this function alternates media symbols
-				var play = true;
-				return function() {
-					play = !play;
-					if( play === true) {
-						d3.select("#media-path").attr("d", "M6 19h4V5H6v14zm8-14v14h4V5h-4z"); // pause symbol
-						simulation.restart();
-					} else if( play === false) {
-						d3.select("#media-path").attr("d", "M8 5v14l11-7z"); // play symbol
-						simulation.stop();
-					}
-				};
-			})() );
+			.on("click", function() { // when user clicks this, this function alternates media symbols
+				control.playState = !control.playState;
+				control.updateMediaButton();
+			});
+		mediabutton.append("title")
+			.attr("id", "media-title");
 		mediabutton.append("rect")
 			.attr("class", "toolbox-box")
 			.attr("width", 24)
 			.attr("height", 24)
 			.attr("shape-rendering", "crispEdges");
 		mediabutton.append("path")
-			.attr("id", "media-path")
-			.attr("d", "M6 19h4V5H6v14zm8-14v14h4V5h-4z"); // shows pause button; means simulation is on play
+			.attr("id", "media-path");
+		control.updateMediaButton();
 
 		// CURSOR
 		var cursorbutton = toolBox.append("g")
@@ -125,12 +139,15 @@ var SVGGRAPH = (function() {
 			.attr("class", "toolbox-box")
 			.attr("width", 24)
 			.attr("height", 24)
-			.attr("shape-rendering", "crispEdges")
+			.attr("shape-rendering", "crispEdges");
 		cursorbutton.append("path")
-			//.attr("d", "M13.64,21.97C13.14,22.21 12.54,22 12.31,21.5L10.13,16.76L7.62,18.78C7.45,18.92 7.24,19 7,19A1,1 0 0,1 6,18V3A1,1 0 0,1 7,2C7.24,2 7.47,2.09 7.64,2.23L7.65,2.22L19.14,11.86C19.57,12.22 19.62,12.85 19.27,13.27C19.12,13.45 18.91,13.57 18.7,13.61L15.54,14.23L17.74,18.96C18,19.46 17.76,20.05 17.26,20.28L13.64,21.97Z")
-			//.attr("d", "M13,6V11H18V7.75L22.25,12L18,16.25V13H13V18H16.25L12,22.25L7.75,18H11V13H6V16.25L1.75,12L6,7.75V11H11V6H7.75L12,1.75L16.25,6H13Z")
 			.attr("d", "M10,2A2,2 0 0,1 12,4V8.5C12,8.5 14,8.25 14,9.25C14,9.25 16,9 16,10C16,10 18,9.75 18,10.75C18,10.75 20,10.5 20,11.5V15C20,16 17,21 17,22H9C9,22 7,15 4,13C4,13 3,7 8,12V4A2,2 0 0,1 10,2Z")
-			
+			// regular mouse pointer icon; maybe to implement a selection tool
+			//.attr("d", "M13.64,21.97C13.14,22.21 12.54,22 12.31,21.5L10.13,16.76L7.62,18.78C7.45,18.92 7.24,19 7,19A1,1 0 0,1 6,18V3A1,1 0 0,1 7,2C7.24,2 7.47,2.09 7.64,2.23L7.65,2.22L19.14,11.86C19.57,12.22 19.62,12.85 19.27,13.27C19.12,13.45 18.91,13.57 18.7,13.61L15.54,14.23L17.74,18.96C18,19.46 17.76,20.05 17.26,20.28L13.64,21.97Z")
+			// drag icon; probably useless
+			//.attr("d", "M13,6V11H18V7.75L22.25,12L18,16.25V13H13V18H16.25L12,22.25L7.75,18H11V13H6V16.25L1.75,12L6,7.75V11H11V6H7.75L12,1.75L16.25,6H13Z")
+			.attr("d", "M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z");
+
 		// shows the actual outline we used
 		toolBox.append("use")
 			.attr("href", "#toolBox")
@@ -151,7 +168,7 @@ var SVGGRAPH = (function() {
 	}
 
 	function dragstarted(d) {
-		//if (!d3.event.active) simulation.alphaTarget(0.3).restart(); // heats the simulation
+		if (control.playState && !d3.event.active) simulation.alphaTarget(0.3).restart(); // heats the simulation if it is running
 		d.fx = d.x;
 		d.fy = d.y;
 	}
@@ -159,19 +176,29 @@ var SVGGRAPH = (function() {
 	function dragged(d) {
 		d.fx = d3.event.x;
 		d.fy = d3.event.y;
+
+		if(!control.playState) { // if paused
+			d.x = d3.event.x;
+			d.y = d3.event.y;
+			// d.x = d.fx, d.vx = 0;
+			// d.y = d.fy, d.vy = 0;
+			tick(); // TODO: update just affected nodes and links rather than everything
+		}	
+
 	}
 
 	function dragended(d) {
-		//if (!d3.event.active) simulation.alphaTarget(0);
+		if (control.playState && !d3.event.active) simulation.alphaTarget(0);
 		d.fx = null;
 		d.fy = null;
+
 	}
 
 	// TODO: organize all functions pertaining to options panel into another file
 	function createNodeOptionsPanel(d) {
 		console.log(d, d3.select(this).datum());
 		var circleNode = this;
-		d3.select(circleNode).style("stroke", "lightblue").style("stroke-width", "2.5");
+		d3.select(circleNode).style("stroke", "orange").style("stroke-width", "2.5");
 
 		var foreignObject = d3.select(".forms")
 		    .append("foreignObject")
@@ -263,6 +290,7 @@ var SVGGRAPH = (function() {
 	}
 
 	function svg_import(importObject) {
+		// I should check if it's valid here
 
 		// The || operator can be used to fill in default values:
 
