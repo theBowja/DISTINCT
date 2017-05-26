@@ -1,42 +1,60 @@
 var SVGGRAPH = (function() {
 
 	var svg = d3.select("svg")
+		.attr("id", "background")
 		.on("dblclick", function() {
-			console.log(node);
-			var temp = { "name": "unnamed", "color": "black", "x": "10", "y": "10"};
+			if (d3.event.target.id !== "background") return;
 
-			//	console.log(simulation.nodes());
+			var point = d3.mouse(this);
 
 			var newnodes = simulation.nodes();
-			newnodes.push(temp);
+			newnodes.push({
+				"name": "unnamed",
+				"color": "black",
+				"x": point[0],
+				"y": point[1]
+			});
 
-
-			//update(newnodes);
 			addNodes(newnodes);
-			// return;
-
-			//console.log(simulation.nodes());
-			//console.log(node); // join old data with new data
-			// var text = node.data(newnodes)
-			// 	.enter().append("circle")
-			// 	.attr("r", 9)
-	  //   		.attr("fill", function(d) { return d.color; })
-	  //   		.call(d3.drag()
-			// 		.on("start", dragstarted)
-			// 		.on("drag", dragged)
-			// 		.on("end", dragended));
-	  //   	text.exit().remove();
-	  //   	// console.log(node, text)
-	  //   	// node = text;
-	  //   	console.log(node.data())
-
-			simulation.nodes(newnodes);
+			tick();
 		})
 
 	;
 	var width = +svg.attr("width");
 	var height = +svg.attr("height");
 
+	var control = { // controls the simulation: play/pause, cursor type, etc.
+		canPlay: false, // default: false; it is paused
+		updateMediaButton: function(state) {
+			if (state === undefined || typeof state !== 'boolean') state = this.canPlay;
+			if (state === true) {
+				d3.select("#media-path").attr("d", "M6 19h4V5H6v14zm8-14v14h4V5h-4z"); // pause icon
+				d3.select("#media-title").text("Currently running (click here to pause force simulation)");
+				simulation.alpha(0.3).restart();
+			} else if (state === false) {
+				d3.select("#media-path").attr("d", "M8 5v14l11-7z"); // play icon
+				d3.select("#media-title").text("Currently paused (click here to resume force simulation)");
+				simulation.stop();
+			}
+			tick(); // puts nodes/links into their expected places
+		},
+		canCreate: false, // default: false; cannot create/delete nodes/links
+		updateInteractionButton: function(state) {
+			if (state === undefined || typeof state !== 'boolean') state = this.canCreate;
+			if (state === true) {
+				d3.select("#interaction-path").attr("d", "M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"); // circle plus icon
+				d3.select("#interaction-title").text("Create node (DOUBLE CLICK)/link (CLICK two nodes) or remove a selected node/link (DELETE)");
+			} else if (state === false) {
+				d3.select("#interaction-path").attr("d", "M10,2A2,2 0 0,1 12,4V8.5C12,8.5 14,8.25 14,9.25C14,9.25 16,9 16,10C16,10 18,9.75 18,10.75C18,10.75 20,10.5 20,11.5V15C20,16 17,21 17,22H9C9,22 7,15 4,13C4,13 3,7 8,12V4A2,2 0 0,1 10,2Z"); // drag cursor icon
+				d3.select("#interaction-title").text("Drag node/link or edit its properties (DOUBLE CLICK)");
+			}
+			// regular mouse pointer icon; maybe to implement a selection tool
+			//.attr("d", "M13.64,21.97C13.14,22.21 12.54,22 12.31,21.5L10.13,16.76L7.62,18.78C7.45,18.92 7.24,19 7,19A1,1 0 0,1 6,18V3A1,1 0 0,1 7,2C7.24,2 7.47,2.09 7.64,2.23L7.65,2.22L19.14,11.86C19.57,12.22 19.62,12.85 19.27,13.27C19.12,13.45 18.91,13.57 18.7,13.61L15.54,14.23L17.74,18.96C18,19.46 17.76,20.05 17.26,20.28L13.64,21.97Z")
+			// move icon; probably useless
+			//.attr("d", "M13,6V11H18V7.75L22.25,12L18,16.25V13H13V18H16.25L12,22.25L7.75,18H11V13H6V16.25L1.75,12L6,7.75V11H11V6H7.75L12,1.75L16.25,6H13Z")
+
+		}
+	};
 
 	var txtdmp = {"version":"0.0.1","nodes":[{"name":"My phone","color":"black","index":0,"x":461.2960405859041,"y":277.92884126106566,"vy":0.00012863524492965942,"vx":-0.00005998378344618709},{"name":"My laptop","color":"black","index":1,"x":498.3585749771392,"y":331.1443928567981,"vy":0.0003382745034393672,"vx":-0.00004791681585219554},{"name":"My tablet","color":"black","index":2,"x":511.9092850879242,"y":275.92844260557075,"vy":0.0005477273101865026,"vx":-0.00012739247996039184},{"name":"My computer","color":"black","index":3,"x":520.9278666139944,"y":304.5713866318403,"vy":0.000235276103997298,"vx":-0.0002378772954907092},{"name":"My tv","color":"black","index":4,"x":486.61810502198665,"y":265.43091965925606,"vy":0.0004097001932323695,"vx":0.0000323610571067794},{"name":"My router","color":"black","index":5,"x":487.0923152995146,"y":299.56160184746017,"vy":0.00041233983140895265,"vx":-0.00027013610325591714},{"name":"The internet","color":"black","index":6,"x":453.0860224586336,"y":317.5118684304733,"vy":0.0004637310243122259,"vx":-0.0002255792134990494},{"name":"Someone else's router","color":"green","index":7,"x":420.710626140119,"y":327.9257029767107,"vy":0.0006205849636372653,"vx":-0.00022729014994553914}],"links":[{"source":"My laptop","target":"My router"},{"source":"My tablet","target":"My router"},{"source":"My phone","target":"My router"},{"source":"My computer","target":"My router"},{"source":"My tv","target":"My router"},{"source":"My router","target":"The internet"},{"source":"The internet","target":"Someone else's router"}]};
 
@@ -62,65 +80,27 @@ var SVGGRAPH = (function() {
 	];
 	nodes = txtdmp.nodes;
 	links = txtdmp.links;
-	var clonedlinks = JSON.parse(JSON.stringify(links)); // clones the array
-
-	var link = svg.append("g")
-		.attr("class", "links")
-		.selectAll("line");
-	addLinks(clonedlinks);
-
-	var node = svg.append("g")
-		.attr("class", "nodes")
-		.selectAll("circle");
-	addNodes(nodes); // TODO: incorporate this as part of d3 method chaining
-
-	var form = svg.append("g")
-	 	.attr("class", "forms")
-		;
 
 	var simulation = d3.forceSimulation()
 	   	.force("link", d3.forceLink().id(function(d) { return d.name; })) // force link with id specified
 	    .force("charge", d3.forceManyBody())
-	    .force("center", d3.forceCenter(width/2,height/2)); // force center
-	    
-	simulation
-		.nodes(nodes)
+	    .force("center", d3.forceCenter(width/2,height/2)) // force center
 		.on('tick', tick);
-	simulation.force("link")
-		.links(clonedlinks);
 
-	var control = { // controls the simulation: play/pause, cursor type, etc.
-		playState: false, // default: false; it is paused
-		updateMediaButton: function(state) {
-			if (state === undefined || typeof state !== 'boolean') state = this.playState;
-			if (state === true) {
-				d3.select("#media-path").attr("d", "M6 19h4V5H6v14zm8-14v14h4V5h-4z"); // pause icon
-				d3.select("#media-title").text("Currently running (click here to pause force simulation)");
-				simulation.alpha(0.3).restart();
-			} else if (state === false) {
-				d3.select("#media-path").attr("d", "M8 5v14l11-7z"); // play icon
-				d3.select("#media-title").text("Currently paused (click here to resume force simulation)");
-				simulation.stop();
-			}
-			tick(); // puts nodes/links into their expected places
-		},
-		createState: false, // default: false; cannot create/delete nodes/links
-		updateInteractionButton: function(state) {
-			if (state === undefined || typeof state !== 'boolean') state = this.createState;
-			if (state === true) {
-				d3.select("#interaction-path").attr("d", "M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"); // circle plus icon
-				d3.select("#interaction-title").text("Create node (DOUBLE CLICK)/link (CLICK two nodes) or remove a selected node/link (DELETE)");
-			} else if (state === false) {
-				d3.select("#interaction-path").attr("d", "M10,2A2,2 0 0,1 12,4V8.5C12,8.5 14,8.25 14,9.25C14,9.25 16,9 16,10C16,10 18,9.75 18,10.75C18,10.75 20,10.5 20,11.5V15C20,16 17,21 17,22H9C9,22 7,15 4,13C4,13 3,7 8,12V4A2,2 0 0,1 10,2Z"); // drag cursor icon
-				d3.select("#interaction-title").text("Drag node/link or edit its properties (DOUBLE CLICK)");
-			}
-			// regular mouse pointer icon; maybe to implement a selection tool
-			//.attr("d", "M13.64,21.97C13.14,22.21 12.54,22 12.31,21.5L10.13,16.76L7.62,18.78C7.45,18.92 7.24,19 7,19A1,1 0 0,1 6,18V3A1,1 0 0,1 7,2C7.24,2 7.47,2.09 7.64,2.23L7.65,2.22L19.14,11.86C19.57,12.22 19.62,12.85 19.27,13.27C19.12,13.45 18.91,13.57 18.7,13.61L15.54,14.23L17.74,18.96C18,19.46 17.76,20.05 17.26,20.28L13.64,21.97Z")
-			// move icon; probably useless
-			//.attr("d", "M13,6V11H18V7.75L22.25,12L18,16.25V13H13V18H16.25L12,22.25L7.75,18H11V13H6V16.25L1.75,12L6,7.75V11H11V6H7.75L12,1.75L16.25,6H13Z")
+	// link before node because of how svg is rendered
+	var link = svg.append("g")
+		.attr("class", "links")
+		.selectAll("line");
+	var node = svg.append("g")
+		.attr("class", "nodes")
+		.selectAll("circle");
 
-		}
-	};
+	addNodes(nodes);
+	addLinks(links);
+
+	var form = svg.append("g")
+	 	.attr("class", "forms");
+
 	var toolBox = svg.append("g")
 		.attr("id", "toolbox")
 		.attr("transform", "translate(10,10)");
@@ -128,9 +108,8 @@ var SVGGRAPH = (function() {
 
 	function addNodes(nodes) {
 		node = node.data(nodes); // join new data with old elements
-	    
-	    node.enter().append("circle")
-	    	.merge(node)
+	    node.exit().remove(); // remove unused elements
+	    node =  node.enter().append("circle") // acts on new elements
 	    	.attr("r", 9)
 	    	.attr("fill", function(d) { return d.color; })
 			.on("dblclick", createNodeOptionsPanel) // "contextmenu" would be for right click
@@ -138,21 +117,21 @@ var SVGGRAPH = (function() {
 				.on("start", dragstarted)
 				.on("drag", dragged)
 				.on("end", dragended))
-			.append("title") // allows us to see name when a node is moused over
-				.text(function(d) { return d.name; });
+	    	.merge(node); // merge with old unchanged elements
+		node.append("title") // allows us to see name when a node is moused over
+			.text(function(d) { return d.name; });
 
-		// removes old elements as needed
-		node.exit().remove();
+		simulation.nodes(nodes);
+		if (control.canPlay) simulation.alphaTarget(0.3).restart();
 	}
 
 	function addLinks(links) {
-		link = svg.select("g.links").selectAll("line")
-			.data(links)
-			.enter().append("line"); 
-	}
+		link = link.data(links); // join
+		link.exit().remove(); // remove
+		link = link.enter().append("line") // append new
+			.merge(link); // merge with old
 
-	function update(newnodes) {
-		console.log(newnodes);
+		simulation.force("link").links(links);
 	}
 
 	function initToolbar(toolBox) {
@@ -176,7 +155,7 @@ var SVGGRAPH = (function() {
 			.attr("class", "toolbox-button")
 			.attr("transform", "translate(0,0)")
 			.on("click", function() { // when user clicks this, this function alternates media symbols
-				control.playState = !control.playState;
+				control.canPlay = !control.canPlay;
 				control.updateMediaButton();
 			});
 		mediabutton.append("title")
@@ -195,7 +174,7 @@ var SVGGRAPH = (function() {
 			.attr("class", "toolbox-button")
 			.attr("transform", "translate(0,24)")
 			.on("click", function() { // when user clicks this, it alternates levels of interactivity
-				control.createState = !control.createState;
+				control.canCreate = !control.canCreate;
 				control.updateInteractionButton();
 			});
 		interactionbutton.append("title")
@@ -217,19 +196,18 @@ var SVGGRAPH = (function() {
 		}
 
 	function tick() {
-		link
-			.attr("x1", function(d) { return d.source.x; })
+		node.attr("cx", function(d) { return d.x; })
+			.attr("cy", function(d) { return d.y; });
+
+		link.attr("x1", function(d) { return d.source.x; })
 			.attr("y1", function(d) { return d.source.y; })
 			.attr("x2", function(d) { return d.target.x; })
 			.attr("y2", function(d) { return d.target.y; });
-		console.log(node);
-		node
-			.attr("cx", function(d) { return d.x; })
-			.attr("cy", function(d) { return d.y; });
+
 	}
 
 	function dragstarted(d) {
-		if (control.playState && !d3.event.active) simulation.alphaTarget(0.3).restart(); // heats the simulation if it is running
+		if (control.canPlay && !d3.event.active) simulation.alphaTarget(0.3).restart(); // heats the simulation if it is running
 		d.fx = d.x;
 		d.fy = d.y;
 	}
@@ -238,7 +216,7 @@ var SVGGRAPH = (function() {
 		d.fx = d3.event.x;
 		d.fy = d3.event.y;
 
-		if (!control.playState) { // if paused
+		if (!control.canPlay) { // if paused
 			d.x = d3.event.x;
 			d.y = d3.event.y;
 			// d.x = d.fx, d.vx = 0;
@@ -249,7 +227,7 @@ var SVGGRAPH = (function() {
 	}
 
 	function dragended(d) {
-		if (control.playState && !d3.event.active) simulation.alphaTarget(0);
+		if (control.canPlay && !d3.event.active) simulation.alphaTarget(0);
 		d.fx = null;
 		d.fy = null;
 
