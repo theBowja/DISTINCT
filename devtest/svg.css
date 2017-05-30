@@ -10,6 +10,36 @@ textarea {
     cursor: pointer;
 }
 
+.nodes circle.optionsopen {
+	stroke: lightblue;
+	stroke-width: 2.5;
+}
+
+.nodes circle.selected {
+	stroke: orange;
+	stroke-width: 2.5;
+}
+
+.nodes circle.selectedforlink {
+	stroke: orange;
+	stroke-width: 2.5;
+
+	stroke-dasharray: 5,2;	
+
+    animation: dashspin 10s infinite linear;
+    -webkit-animation: dashspin 10s infinite linear;
+}
+
+@keyframes dashspin {
+    0% { stroke-dashoffset: 0%; }
+    100% { stroke-dashoffset: 25%; }
+}
+
+@-webkit-keyframes dashspin {
+    0% { stroke-dashoffset: 0%; }
+    100% { stroke-dashoffset: 25%; }
+}
+
 .links line {
     stroke: #777;
     stroke-width: 4px;
@@ -67,6 +97,6 @@ option {
 }
 
 svg {
-	user-select:none;
-	cursor:default;
+	user-select: none;
+	cursor: default;
 }

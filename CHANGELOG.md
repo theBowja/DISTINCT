@@ -14,6 +14,10 @@ Tags are:
 
 ## [Unreleased]
 
+## [0.0.11] - 2017-05-26
+### Added
+- functionality to add nodes
+
 ## [0.0.10] - 2017-05-23
 ### Added
 - can play/pause simulation now
