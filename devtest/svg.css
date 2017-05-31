@@ -3,24 +3,29 @@ textarea {
 	height: 100px;
 }
 
-.nodes circle {
+svg {
+	user-select: none;
+	cursor: default;
+}
+
+#nodes circle {
     /*fill: #000;*/
     stroke: none;
     stroke-width: 3px;
     cursor: pointer;
 }
 
-.nodes circle.optionsopen {
+#nodes circle.optionsopen {
 	stroke: lightblue;
 	stroke-width: 2.5;
 }
 
-.nodes circle.selected {
+#nodes circle.selected {
 	stroke: orange;
 	stroke-width: 2.5;
 }
 
-.nodes circle.selectedforlink {
+#nodes circle.selectedforlink {
 	stroke: orange;
 	stroke-width: 2.5;
 
@@ -40,12 +45,16 @@ textarea {
     100% { stroke-dashoffset: 25%; }
 }
 
-.links line {
+#links line {
     stroke: #777;
     stroke-width: 4px;
 }
 
-.forms foreignObject {
+#links line.selected {
+	stroke: orange;
+}
+
+#forms foreignObject {
 	width: 300px;
 	height: 250px;
 	border: 1px solid lightgrey;
@@ -94,9 +103,4 @@ textarea {
 
 option {
 	font-size: 16px;
-}
-
-svg {
-	user-select: none;
-	cursor: default;
 }

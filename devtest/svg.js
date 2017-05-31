@@ -1,12 +1,32 @@
 var SVGGRAPH = (function() {
 
+	// init for delete selected nodes/links functionality
+	d3.select("#svgfocus")
+		.on("keydown", function() {
+			switch (d3.event.keyCode) {
+				case 27: // ESCAPE - for deselecting everything
+					while (control.selections.nodes.length !== 0)
+						control.selections.deselectnodes(control.selections.nodes[0]);
+					while (control.selections.links.length !== 0)
+						control.selections.deselectlinks(control.selections.links[0]);
+					control.selections.deselectsource();
+
+					break;
+				case 46: // DELETE
+				//var temp = d3.select(control.selections.nodes[0]).datum();
+
+				control.selections.deletenodes();
+				control.selections.deletelinks();
+				control.selections.deletesource();
+			}
+		});
+
 	var svg = d3.select("svg")
 		.attr("id", "background")
 		.on("dblclick", function() {
-			if (!control.canCreate || d3.event.target.id !== "background") return;
+			if (!control.canCreate || d3.event.target.id !== "background") return; // precondition
 
 			var point = d3.mouse(this);
-
 			var newnodes = simulation.nodes();
 			newnodes.push({
 				"name": "unnamed",
@@ -17,9 +37,8 @@ var SVGGRAPH = (function() {
 
 			addNodes(newnodes);
 			tick();
-		})
+		});
 
-	;
 	var width = +svg.attr("width");
 	var height = +svg.attr("height");
 
@@ -43,7 +62,7 @@ var SVGGRAPH = (function() {
 			if (state === undefined || typeof state !== 'boolean') state = this.canCreate;
 			if (state === true) {
 				d3.select("#interaction-path").attr("d", "M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"); // circle plus icon
-				d3.select("#interaction-title").text("Create node (DOUBLE CLICK)/link (CTRL+CLICK two nodes) or remove a selected node/link (DELETE)");
+				d3.select("#interaction-title").text("Create node (DOUBLE CLICK)/link (SHIFT+CLICK two nodes) or remove a selected node/link (DELETE)");
 			} else if (state === false) {
 				d3.select("#interaction-path").attr("d", "M10,2A2,2 0 0,1 12,4V8.5C12,8.5 14,8.25 14,9.25C14,9.25 16,9 16,10C16,10 18,9.75 18,10.75C18,10.75 20,10.5 20,11.5V15C20,16 17,21 17,22H9C9,22 7,15 4,13C4,13 3,7 8,12V4A2,2 0 0,1 10,2Z"); // drag cursor icon
 				d3.select("#interaction-title").text("Drag node/link or edit its properties (DOUBLE CLICK)");
@@ -53,83 +72,110 @@ var SVGGRAPH = (function() {
 			// move icon; probably useless
 			//.attr("d", "M13,6V11H18V7.75L22.25,12L18,16.25V13H13V18H16.25L12,22.25L7.75,18H11V13H6V16.25L1.75,12L6,7.75V11H11V6H7.75L12,1.75L16.25,6H13Z")
 		},
-		linktocreate: {
-			source: undefined, // stores d3 selection
-			target: undefined, // stores d3 selection
-			approval: function() { 
-				return (typeof target !== "undefined");
-			},
-			add: function(d) {
-				if (typeof source === "undefined") {
-					source = d;
-				} else {
-					target = d;
-				}
-			},
-			get: function() { // returns false if not approved
-				return { source: source.datum(), target: target.datum() };
-			},
-			remove: function() {
-				source = undefined;
-			},
-			removeAll: function() {
-				source.classed("selectedforlink", false);
-				source = undefined;
-				target.classed("selectedforlink", false);
-				target = undefined;
-			}
-		},
 		selections: {
-			nodes: [],
-			links: [],
+			nodes: [], // stores selections
+			deselectnodes: function(r) {
+				if(this.nodes.indexOf(r) === -1) return; // precondition: exists
+				d3.select(r).classed("selected", false);
+				this.nodes.splice(this.nodes.indexOf(r), 1);
+			},
+			deletenodes: function() {
+				var seldats = d3.selectAll("#nodes circle.selected").data();
+				var newnodes = simulation.nodes();
+				var newlinks = simulation.force("link").links();
+				console.log(newnodes)
+				newnodes = newnodes.filter(function(dn) { // filters out any selected node
+					for (var i = 0; i < seldats.length; i++) { // TODO: see if this triple-nested loop may have performance issues on large graphs
+						if (dn.name === seldats[i].name) {
+							newlinks = newlinks.filter(function(sn) { // filters out any links connected to the selected node
+								return (dn.name !== sn.source.name && dn.name !== sn.target.name);
+							});
+							return false;
+						}
+					}
+					return true;
+				});
+				addNodes(newnodes);
+				addLinks(newlinks);
+			},
+			links: [], // stores selections
+			deselectlinks: function(r) {
+				if(this.links.indexOf(r) === -1) return; // precondition
+				d3.select(r).classed("selected", false);
+				this.links.splice(this.links.indexOf(r), 1);
+			},
+			deletelinks: function() {
+				var seldats = d3.selectAll("#links line.selected").data();
+				var newlinks = simulation.force("link").links();
+				newlinks = newlinks.filter(function(d) { // filters out any selected link
+					return seldats.every(function(s) {
+						return d.source.name !== s.source.name && d.target.name !== s.target.name;
+					});			
+				});
+				addLinks(newlinks);
+			},
+			source: undefined, // stores selection except undefined
+			deselectsource: function() {
+				if (typeof this.source !== "undefined")
+					this.source.classed("selectedforlink", false);
+				this.source = undefined;
+			},
+			deletesource: function() {
+				if (typeof this.source !== "undefined") {
+					this.source.remove();
+					this.source = undefined;
+				}
+			}
 		},
 	};
 
 	var txtdmp = {"version":"0.0.1","nodes":[{"name":"My phone","color":"black","index":0,"x":461.2960405859041,"y":277.92884126106566,"vy":0.00012863524492965942,"vx":-0.00005998378344618709},{"name":"My laptop","color":"black","index":1,"x":498.3585749771392,"y":331.1443928567981,"vy":0.0003382745034393672,"vx":-0.00004791681585219554},{"name":"My tablet","color":"black","index":2,"x":511.9092850879242,"y":275.92844260557075,"vy":0.0005477273101865026,"vx":-0.00012739247996039184},{"name":"My computer","color":"black","index":3,"x":520.9278666139944,"y":304.5713866318403,"vy":0.000235276103997298,"vx":-0.0002378772954907092},{"name":"My tv","color":"black","index":4,"x":486.61810502198665,"y":265.43091965925606,"vy":0.0004097001932323695,"vx":0.0000323610571067794},{"name":"My router","color":"black","index":5,"x":487.0923152995146,"y":299.56160184746017,"vy":0.00041233983140895265,"vx":-0.00027013610325591714},{"name":"The internet","color":"black","index":6,"x":453.0860224586336,"y":317.5118684304733,"vy":0.0004637310243122259,"vx":-0.0002255792134990494},{"name":"Someone else's router","color":"green","index":7,"x":420.710626140119,"y":327.9257029767107,"vy":0.0006205849636372653,"vx":-0.00022729014994553914}],
 	"links":[{"source":"My laptop","target":"My router"},{"source":"My laptop","target":"My router"},{"source":"My phone","target":"My router"},{"source":"My computer","target":"My router"},{"source":"My tv","target":"My router"},{"source":"My router","target":"The internet"},{"source":"The internet","target":"Someone else's router"}]};
+	txtdmp = {"version":"0.0.1","nodes":[{"name":"ie 1","color":"black","index":0,"x":353.3908286970455,"y":301.0285597393892,"vy":-0.005671381775834789,"vx":-0.0023377073078231143,"fx":null,"fy":null},{"name":"ie 2","color":"black","index":1,"x":384.5963070891589,"y":289.8471094867676,"vy":-0.003501401612390198,"vx":-0.0015264385371461747},{"name":"ie 3","color":"black","index":2,"x":421.8858092171163,"y":283.848242953348,"vy":-0.0018996811528948028,"vx":-0.0009008103906307653},{"name":"ie 4","color":"black","index":3,"x":461.78207224624344,"y":283.41648262812555,"vy":-0.0009935134241543608,"vx":-0.00040407499857979327},{"name":"ie 5","color":"black","index":4,"x":501.89934031125756,"y":288.5866020592608,"vy":0.0014461846433615909,"vx":-0.00030026848997704615},{"name":"ie 6","color":"black","index":5,"x":539.4252678523063,"y":301.864090639488,"vy":-0.001580951370427995,"vx":0.000860606700657684,"fx":null,"fy":null},{"name":"ie 7","color":"black","index":6,"x":573.4299041145249,"y":318.8095253544606,"vy":-0.003881574633878184,"vx":0.0019016269267218468},{"name":"ie 8","color":"green","index":7,"x":603.5891661635018,"y":332.5812771268206,"vy":-0.002027693013540183,"vx":0.0014027572514599311,"fx":null,"fy":null}],
+	"links":[{"source":"ie 1","target":"ie 2"},{"source":"ie 2","target":"ie 3"},{"source":"ie 3","target":"ie 4"},{"source":"ie 4","target":"ie 5"},{"source":"ie 5","target":"ie 6"},{"source":"ie 6","target":"ie 7"},{"source":"ie 7","target":"ie 8"}]};
 
 	// put all this into a json
 	var nodes = [
-		{ "name": "My phone", "color": "black" },
-		{ "name": "My laptop", "color": "black" },
-		{ "name": "My tablet", "color": "black" },
-		{ "name": "My computer", "color": "black" },
-		{ "name": "My tv", "color": "black" },
-		{ "name": "My router", "color": "black" },
-		{ "name": "The internet", "color": "black" },
-		{ "name": "Someone else's router", "color": "green" }
+		{ "name": "ie 1", "color": "black" },
+		{ "name": "ie 2", "color": "black" },
+		{ "name": "ie 3", "color": "black" },
+		{ "name": "ie 4", "color": "black" },
+		{ "name": "ie 5", "color": "black" },
+		{ "name": "ie 6", "color": "black" },
+		{ "name": "ie 7", "color": "black" },
+		{ "name": "ie 8", "color": "green" }
 	];
 	var links = [
-		{ "source": "My laptop", "target": "My router" },
-		{ "source": "My tablet", "target": "My router" },
-		{ "source": "My phone", "target": "My router" },
-		{ "source": "My computer", "target": "My router" },
-		{ "source": "My tv", "target": "My router" },
-		{ "source": "My router", "target": "The internet" },
-		{ "source": "The internet", "target": "Someone else's router" },
+		{ "source": "ie 1", "target": "ie 2" },
+		{ "source": "ie 2", "target": "ie 3" },
+		{ "source": "ie 3", "target": "ie 4" },
+		{ "source": "ie 4", "target": "ie 5" },
+		{ "source": "ie 5", "target": "ie 6" },
+		{ "source": "ie 6", "target": "ie 7" },
+		{ "source": "ie 7", "target": "ie 8" },
 	];
 	nodes = txtdmp.nodes;
 	links = txtdmp.links;
 
 	var simulation = d3.forceSimulation()
-	   	.force("link", d3.forceLink().id(function(d) { return d.name; })) // force link with id specified
-	    .force("charge", d3.forceManyBody())
-	    .force("center", d3.forceCenter(width/2,height/2)) // force center
+		.force("link", d3.forceLink().id(function(d) { return d.name; })) // force link with id specified
+		.force("charge", d3.forceManyBody())
+		.force("center", d3.forceCenter(width/2,height/2)) // force center
 		.on('tick', tick);
 
 	// link before node because of how svg is rendered
 	var link = svg.append("g")
-		.attr("class", "links")
+		.attr("id", "links")
 		.selectAll("line");
 	var node = svg.append("g")
-		.attr("class", "nodes")
+		.attr("id", "nodes")
 		.selectAll("circle");
 
 	addNodes(nodes);
 	addLinks(links);
 
 	var form = svg.append("g")
-	 	.attr("class", "forms");
+	 	.attr("id", "forms");
 
 	var toolBox = svg.append("g")
 		.attr("id", "toolbox")
@@ -139,14 +185,14 @@ var SVGGRAPH = (function() {
 	//////////// HERE BEGINS ALL THE FUNCTIONS //////////////
 
 	function addNodes(nodes) {
-		node = node.data(nodes); // join new data with old elements
-	    node.exit().remove(); // remove unused elements
-	    nodenew = node.enter().append("circle") // acts on new elements
-	    	.attr("r", 9)
-	    	.attr("fill", function(d) { return d.color; })
-	    	.on("click", selectNode)
+		node = node.data(nodes, function(d){return d.name;}); // join new data with old elements
+		node.exit().remove(); // remove unused elements
+		nodenew = node.enter().append("circle") // acts on new elements
+			.attr("r", 9)
+			.attr("fill", function(d) { return d.color; })
+			.on("click", selectNode)
 			.on("dblclick", createNodeOptionsPanel) // "contextmenu" would be for right click
-	    	.call(d3.drag()
+			.call(d3.drag()
 				.on("start", dragstarted)
 				.on("drag", dragged)
 				.on("end", dragended));
@@ -159,42 +205,58 @@ var SVGGRAPH = (function() {
 	}
 
 	function addLinks(links) {
-		link = link.data(links); // join
+		link = link.data(links, function(d){return d.source.name + "_" + d.target.name;}); // join
 		link.exit().remove(); // remove
 		link = link.enter().append("line") // append new
+			.on("click", selectLink)
 			.merge(link); // merge with old
 
 		simulation.force("link").links(links);
 		if (control.canPlay) simulation.alphaTarget(0.3).restart();
 	}
 
-	function selectNode(d) {
+	function selectNode() {
 		var sel = d3.select(this);
-		//console.log(sel.datum());
 
-		if (d3.event.ctrlKey && control.canCreate) {
-			sel.classed("selectedforlink", !sel.classed("selected"));
-			if (sel.classed("selectedforlink")) { // if true, then we add to linktocreate
-				control.linktocreate.add(sel);
-				if (control.linktocreate.approval() !== false) {
+		// special selection for creating link
+		if (d3.event.shiftKey && control.canCreate) {
+			if (!sel.classed("selectedforlink")) { // selecting
+				if (typeof control.selections.source === "undefined") { // selecting
+					sel.classed("selectedforlink", true);
+					control.selections.source = sel;
+				} else { // creating a link
 					var newlinks = simulation.force("link").links();
-					newlinks.push(control.linktocreate.get());
+					newlinks.push({
+						source: control.selections.source.datum(),
+						target: sel.datum()
+					});
 					addLinks(newlinks);
 					tick();
-					control.linktocreate.removeAll();
+
+					control.selections.deselectsource();
 				}
-			
-				
-			} else { // means we deselected
-				selections.linktocreate.source = undefined;
+			} else { // deselecting
+				control.selections.deselectsource();
+			}				
+		} else { // general selection
+			sel.classed("selected", !sel.classed("selected"));
+			if (sel.classed("selected")) {
+				control.selections.nodes.push(this);
+			} else { // deselect
+				control.selections.deselectnodes(this);
 			}
-
-
-		} else {
-			//console.log(control.selections.linktocreate())
-
 		}
+	}
 
+	function selectLink(d) {
+		var sel = d3.select(this);
+
+		sel.classed("selected", !sel.classed("selected"));
+		if (sel.classed("selected")) {
+			control.selections.links.push(this);
+		} else { // deselect
+			control.selections.deselectlinks(this);
+		}
 	}
 
 	function initToolbar(toolBox) {
@@ -300,6 +362,9 @@ var SVGGRAPH = (function() {
 	function createNodeOptionsPanel(d) {
 		//console.log(d, d3.select(this).datum());
 		var circleNode = this;
+
+		// Conditions to not open the options panel
+		if (d3.event.shiftKey && control.canCreate) return;
 		if (d3.select(circleNode).classed("optionsopen")) {
 			// TODO: fire the close node options panel event
 			return;
@@ -307,8 +372,8 @@ var SVGGRAPH = (function() {
 
 		d3.select(circleNode).classed("optionsopen", true);
 
-		var foreignObject = d3.select(".forms")
-		    .append("foreignObject")
+		var foreignObject = d3.select("#forms")
+			.append("foreignObject")
 			.attr("class", "panel")
 			.attr("x", d.x)
 			.attr("y", d.y);
@@ -318,16 +383,16 @@ var SVGGRAPH = (function() {
 			.attr("class", "panel-default");
 		// HEADER
 		var panel_header = panel.append("div")
-		 	.attr("class", "panel-heading")
-		 	.call(d3.drag()
-		 		.container(circleNode.parentNode.parentNode) // sets the container of drag to the svg
-		 		.filter( dragFilterNodeOptionsPanel)
-		 		.on("drag", function() { dragNodeOptionsPanel(foreignObject); }) ); // drag panel
+			.attr("class", "panel-heading")
+			.call(d3.drag()
+				.container(circleNode.parentNode.parentNode) // sets the container of drag to the svg
+				.filter( dragFilterNodeOptionsPanel)
+				.on("drag", function() { dragNodeOptionsPanel(foreignObject); }) ); // drag panel
 		var panel_header_close = panel_header.append("span")
-		 	.attr("class", "close-custom")
-		 	.datum("undraggable")
-		 	.html("&times;")
-		 	.on("click", function() { closeNodeOptionsPanel(circleNode,foreignObject); });
+			.attr("class", "close-custom")
+			.datum("undraggable")
+			.html("&times;")
+			.on("click", function() { closeNodeOptionsPanel(circleNode,foreignObject); });
 		var panel_header_title = panel_header.append("span")
 			.attr("class", "panel-title")
 			.datum("undraggable")
@@ -432,6 +497,7 @@ var SVGGRAPH = (function() {
 
 	// stuff we are exposing
 	return {
+		simulation: simulation,
 		svg_import: svg_import,
 		svg_export: svg_export
 	};
