@@ -10,8 +10,8 @@ svg {
 
 #nodes circle {
     /*fill: #000;*/
-    stroke: none;
-    stroke-width: 3px;
+    stroke: white;
+    stroke-width: 1.5px;
     cursor: pointer;
 }
 

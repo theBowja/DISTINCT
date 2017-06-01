@@ -14,6 +14,13 @@ Tags are:
 
 ## [Unreleased]
 
+## [0.0.12] - 2017-06-01
+### Added
+- can select nodes and links
+- can create links
+- can delete nodes and links
+- can pan/zoom
+
 ## [0.0.11] - 2017-05-26
 ### Added
 - functionality to add nodes

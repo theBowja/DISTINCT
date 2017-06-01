@@ -5,42 +5,52 @@ var SVGGRAPH = (function() {
 		.on("keydown", function() {
 			switch (d3.event.keyCode) {
 				case 27: // ESCAPE - for deselecting everything
-					while (control.selections.nodes.length !== 0)
-						control.selections.deselectnodes(control.selections.nodes[0]);
-					while (control.selections.links.length !== 0)
-						control.selections.deselectlinks(control.selections.links[0]);
+					d3.selectAll("#nodes circle.selected").classed("selected", false);
+					d3.selectAll("#links line.selected").classed("selected", false);
 					control.selections.deselectsource();
-
 					break;
 				case 46: // DELETE
-				//var temp = d3.select(control.selections.nodes[0]).datum();
-
-				control.selections.deletenodes();
-				control.selections.deletelinks();
-				control.selections.deletesource();
+					if (!control.canCreate) break;
+					control.selections.deletenodes();
+					control.selections.deletelinks();
+					control.selections.deletesource();
 			}
 		});
 
 	var svg = d3.select("svg")
-		.attr("id", "background")
-		.on("dblclick", function() {
-			if (!control.canCreate || d3.event.target.id !== "background") return; // precondition
+	var width = +svg.attr("width");
+	var height = +svg.attr("height");
 
+	// for zooming
+	svg.append("rect")
+		.attr("id", "background")
+		.attr("width", width)
+		.attr("height", height)
+		.style("fill", "none")
+		.style("pointer-events", "all")
+		.call(d3.zoom()
+			.scaleExtent([1 / 2, 4])
+			.on("zoom", zoomed))
+		.on("dblclick.zoom", null)
+		.on("dblclick", function() {
+			// console.log(d3.zoomTransform(this));
 			var point = d3.mouse(this);
+			var transform = d3.zoomTransform(this);
 			var newnodes = simulation.nodes();
 			newnodes.push({
 				"name": "unnamed",
 				"color": "black",
-				"x": point[0],
-				"y": point[1]
+				"x": (point[0] - transform.x)/transform.k,
+				"y": (point[1] - transform.y)/transform.k
 			});
 
-			addNodes(newnodes);
+			updateNodes(newnodes);
 			tick();
 		});
-
-	var width = +svg.attr("width");
-	var height = +svg.attr("height");
+	var g = svg.append("g");
+	function zoomed() {
+		g.attr("transform", d3.event.transform);
+	}
 
 	var control = { // controls for the simulation: play/pause, cursor type, etc.
 		canPlay: false, // default: false; it is paused
@@ -66,24 +76,18 @@ var SVGGRAPH = (function() {
 			} else if (state === false) {
 				d3.select("#interaction-path").attr("d", "M10,2A2,2 0 0,1 12,4V8.5C12,8.5 14,8.25 14,9.25C14,9.25 16,9 16,10C16,10 18,9.75 18,10.75C18,10.75 20,10.5 20,11.5V15C20,16 17,21 17,22H9C9,22 7,15 4,13C4,13 3,7 8,12V4A2,2 0 0,1 10,2Z"); // drag cursor icon
 				d3.select("#interaction-title").text("Drag node/link or edit its properties (DOUBLE CLICK)");
+				control.selections.deselectsource();
 			}
 			// regular mouse pointer icon; maybe to implement a selection tool
 			//.attr("d", "M13.64,21.97C13.14,22.21 12.54,22 12.31,21.5L10.13,16.76L7.62,18.78C7.45,18.92 7.24,19 7,19A1,1 0 0,1 6,18V3A1,1 0 0,1 7,2C7.24,2 7.47,2.09 7.64,2.23L7.65,2.22L19.14,11.86C19.57,12.22 19.62,12.85 19.27,13.27C19.12,13.45 18.91,13.57 18.7,13.61L15.54,14.23L17.74,18.96C18,19.46 17.76,20.05 17.26,20.28L13.64,21.97Z")
 			// move icon; probably useless
 			//.attr("d", "M13,6V11H18V7.75L22.25,12L18,16.25V13H13V18H16.25L12,22.25L7.75,18H11V13H6V16.25L1.75,12L6,7.75V11H11V6H7.75L12,1.75L16.25,6H13Z")
 		},
-		selections: {
-			nodes: [], // stores selections
-			deselectnodes: function(r) {
-				if(this.nodes.indexOf(r) === -1) return; // precondition: exists
-				d3.select(r).classed("selected", false);
-				this.nodes.splice(this.nodes.indexOf(r), 1);
-			},
+		selections: { // TODO: should really make these their own functions
 			deletenodes: function() {
-				var seldats = d3.selectAll("#nodes circle.selected").data();
+				var seldats = d3.selectAll("#nodes circle.selected, circle.selectedforlink").data();
 				var newnodes = simulation.nodes();
 				var newlinks = simulation.force("link").links();
-				console.log(newnodes)
 				newnodes = newnodes.filter(function(dn) { // filters out any selected node
 					for (var i = 0; i < seldats.length; i++) { // TODO: see if this triple-nested loop may have performance issues on large graphs
 						if (dn.name === seldats[i].name) {
@@ -95,26 +99,20 @@ var SVGGRAPH = (function() {
 					}
 					return true;
 				});
-				addNodes(newnodes);
-				addLinks(newlinks);
-			},
-			links: [], // stores selections
-			deselectlinks: function(r) {
-				if(this.links.indexOf(r) === -1) return; // precondition
-				d3.select(r).classed("selected", false);
-				this.links.splice(this.links.indexOf(r), 1);
+				updateNodes(newnodes);
+				updateLinks(newlinks);
 			},
 			deletelinks: function() {
 				var seldats = d3.selectAll("#links line.selected").data();
 				var newlinks = simulation.force("link").links();
 				newlinks = newlinks.filter(function(d) { // filters out any selected link
 					return seldats.every(function(s) {
-						return d.source.name !== s.source.name && d.target.name !== s.target.name;
+						return d.source.name !== s.source.name || d.target.name !== s.target.name;
 					});			
 				});
-				addLinks(newlinks);
+				updateLinks(newlinks);
 			},
-			source: undefined, // stores selection except undefined
+			source: undefined, // stores selection except when undefined
 			deselectsource: function() {
 				if (typeof this.source !== "undefined")
 					this.source.classed("selectedforlink", false);
@@ -122,7 +120,13 @@ var SVGGRAPH = (function() {
 			},
 			deletesource: function() {
 				if (typeof this.source !== "undefined") {
-					this.source.remove();
+					var srcname = this.source.datum().name;
+					var newnodes = simulation.nodes();
+					newnodes = newnodes.filter(function(dn) {
+						return srcname !== dn.name; // TODO: delete associated links
+					});
+					updateNodes(newnodes);
+
 					this.source = undefined;
 				}
 			}
@@ -164,17 +168,17 @@ var SVGGRAPH = (function() {
 		.on('tick', tick);
 
 	// link before node because of how svg is rendered
-	var link = svg.append("g")
+	var link = g.append("g")
 		.attr("id", "links")
 		.selectAll("line");
-	var node = svg.append("g")
+	var node = g.append("g")
 		.attr("id", "nodes")
 		.selectAll("circle");
 
-	addNodes(nodes);
-	addLinks(links);
+	updateNodes(nodes);
+	updateLinks(links);
 
-	var form = svg.append("g")
+	var form = g.append("g")
 	 	.attr("id", "forms");
 
 	var toolBox = svg.append("g")
@@ -184,7 +188,12 @@ var SVGGRAPH = (function() {
 
 	//////////// HERE BEGINS ALL THE FUNCTIONS //////////////
 
-	function addNodes(nodes) {
+	// TODO: combine updateNodes() and updateLinks() into a single update() function
+	/**
+	 * Replaces the nodes of the simulation so that it is reflected on the svg
+	 * @param nodes
+	*/
+	function updateNodes(nodes) {
 		node = node.data(nodes, function(d){return d.name;}); // join new data with old elements
 		node.exit().remove(); // remove unused elements
 		nodenew = node.enter().append("circle") // acts on new elements
@@ -204,7 +213,7 @@ var SVGGRAPH = (function() {
 		if (control.canPlay) simulation.alphaTarget(0.3).restart();
 	}
 
-	function addLinks(links) {
+	function updateLinks(links) {
 		link = link.data(links, function(d){return d.source.name + "_" + d.target.name;}); // join
 		link.exit().remove(); // remove
 		link = link.enter().append("line") // append new
@@ -226,13 +235,17 @@ var SVGGRAPH = (function() {
 					control.selections.source = sel;
 				} else { // creating a link
 					var newlinks = simulation.force("link").links();
-					newlinks.push({
-						source: control.selections.source.datum(),
-						target: sel.datum()
-					});
-					addLinks(newlinks);
-					tick();
 
+					var srcname = control.selections.source.datum().name;
+					// if link doesn't already exist
+					//if (newlinks.findIndex(function(d) {return d.source.name===srcname&&d.target.name===sel.datum().name;})===-1) {
+						newlinks.push({
+							source: control.selections.source.datum(),
+							target: sel.datum()
+						});
+						updateLinks(newlinks);
+						tick();
+					//}
 					control.selections.deselectsource();
 				}
 			} else { // deselecting
@@ -240,23 +253,12 @@ var SVGGRAPH = (function() {
 			}				
 		} else { // general selection
 			sel.classed("selected", !sel.classed("selected"));
-			if (sel.classed("selected")) {
-				control.selections.nodes.push(this);
-			} else { // deselect
-				control.selections.deselectnodes(this);
-			}
 		}
 	}
 
-	function selectLink(d) {
+	function selectLink() {
 		var sel = d3.select(this);
-
 		sel.classed("selected", !sel.classed("selected"));
-		if (sel.classed("selected")) {
-			control.selections.links.push(this);
-		} else { // deselect
-			control.selections.deselectlinks(this);
-		}
 	}
 
 	function initToolbar(toolBox) {
@@ -443,7 +445,6 @@ var SVGGRAPH = (function() {
 	}
 
 	function dragNodeOptionsPanel(foreignObject) {
-		//foreignObject.attr("transform", "translate(10,10)") // alternative
 		foreignObject.attr("x", +foreignObject.attr("x") + d3.event.dx);
 		foreignObject.attr("y", +foreignObject.attr("y") + d3.event.dy);
 	}
@@ -461,16 +462,22 @@ var SVGGRAPH = (function() {
 		foreignObject.remove();
 	}
 
-	function svg_import(importObject) {
-		// I should check if it's valid here
+	function svg_import() {
+		var data;
+		try {
+			data = JSON.parse(d3.select("textarea").property("value"));
+		} catch (e) { // ERR: not a valid json
+			console.error("IMPORT: not a valid json");
+			return;
+		}
 
 		// The || operator can be used to fill in default values:
 
 		node.remove(); // removes all associated elements
-		addNodes(importObject.nodes);
+		updateNodes(importObject.nodes);
 
 		link.remove();
-		addLinks(importObject.links);
+		updateLinks(importObject.links);
 
 		simulation
 			.nodes(importObject.nodes);
@@ -497,7 +504,6 @@ var SVGGRAPH = (function() {
 
 	// stuff we are exposing
 	return {
-		simulation: simulation,
 		svg_import: svg_import,
 		svg_export: svg_export
 	};

@@ -12,9 +12,9 @@
  -->
 	</head>
 	<body>
-		<button type="button" onclick="import_action()">import</button>
+		<button type="button" onclick="SVGGRAPH.svg_import()">import</button>
 		<input type="file">
-		<button type="button" onclick="export_action()">export</button></br>
+		<button type="button" onclick="SVGGRAPH.export_action()">export</button></br>
 		<textarea></textarea></br>
 		<div tabindex="0" id="svgfocus" style="display:inline-block">
 		<svg width="960" height="600" style="border: 1px solid black;">
@@ -26,6 +26,7 @@
 		<script type="text/javascript" src="topologySchema.js"></script>
 		<script>
 		function import_action() {
+			console.log("asdasd");
 			var ajv = Ajv({ $data: true, allErrors: true, removeAdditional: true});
 			ajv.addKeyword('containsNodeName', { $data:true, "validate": function (schema, data, parentSchema, currentDataPath, parentDataObject, parentProperty, rootData) {
 				for (let node of rootData.nodes) { // not supported in all browsers
