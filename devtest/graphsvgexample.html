@@ -14,7 +14,7 @@
 	<body>
 		<button type="button" onclick="SVGGRAPH.svg_import()">import</button>
 		<input type="file">
-		<button type="button" onclick="SVGGRAPH.export_action()">export</button></br>
+		<button type="button" onclick="SVGGRAPH.svg_export()">export</button></br>
 		<textarea></textarea></br>
 		<div tabindex="0" id="svgfocus" style="display:inline-block">
 		<svg width="960" height="600" style="border: 1px solid black;">
@@ -24,41 +24,6 @@
 		<script type="text/javascript" src="svg.js"></script>
 
 		<script type="text/javascript" src="topologySchema.js"></script>
-		<script>
-		function import_action() {
-			console.log("asdasd");
-			var ajv = Ajv({ $data: true, allErrors: true, removeAdditional: true});
-			ajv.addKeyword('containsNodeName', { $data:true, "validate": function (schema, data, parentSchema, currentDataPath, parentDataObject, parentProperty, rootData) {
-				for (let node of rootData.nodes) { // not supported in all browsers
-					if( node.name === data)
-						return true;
-				}
-				return false;
-			}, "errors": false });
-
-			var schema = topologySchema;
-			var validate = ajv.compile(schema);
-
-			//var data = { "nodes": [{ "name": "My phone", "color": "black" }, { "name": "My router", "color": "black" }], "links": [{ "source": "Me router", "target": "Me router" }] };
-			var data = JSON.parse(d3.select("textarea").property("value"));
-
-			var valid = validate(data);
-
-			if (valid)
-				SVGGRAPH.svg_import(data);
-				//svg_import(data.nodes, data.links);
-			else
-				console.log('Invalid import: ' + ajv.errorsText(validate.errors));
-		}
-
-		function export_action() {
-			var jsonexport = SVGGRAPH.svg_export();
-			//var jsonexpert =  { "version": "0.0.0", "nodes": svg_export(), "links": links };
-
-			d3.select("textarea").property("value", JSON.stringify(jsonexport));
-		}
-		</script>
-
 
 
 	</body>

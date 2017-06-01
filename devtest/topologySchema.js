@@ -4,7 +4,7 @@ var topologySchema = {
 		"nodes": {
 			"type": "array",
 			"items": {
-				"additionalProperties": false,
+				//"additionalProperties": false,
 			    "type": "object",
 			    "properties": {
 			    	"name": { "type": "string" },

@@ -22,15 +22,16 @@ var SVGGRAPH = (function() {
 	var height = +svg.attr("height");
 
 	// for zooming
+	var zoom = d3.zoom()
+		.scaleExtent([1 / 2, 4])
+		.on("zoom", zoomed);
 	svg.append("rect")
 		.attr("id", "background")
 		.attr("width", width)
 		.attr("height", height)
 		.style("fill", "none")
 		.style("pointer-events", "all")
-		.call(d3.zoom()
-			.scaleExtent([1 / 2, 4])
-			.on("zoom", zoomed))
+		.call(zoom)
 		.on("dblclick.zoom", null)
 		.on("dblclick", function() {
 			// console.log(d3.zoomTransform(this));
@@ -46,7 +47,11 @@ var SVGGRAPH = (function() {
 
 			updateNodes(newnodes);
 			tick();
-		});
+		})
+		.on("contextmenu", function() {
+			
+		}) // "contextmenu" would be for right click
+		;
 	var g = svg.append("g");
 	function zoomed() {
 		g.attr("transform", d3.event.transform);
@@ -200,7 +205,7 @@ var SVGGRAPH = (function() {
 			.attr("r", 9)
 			.attr("fill", function(d) { return d.color; })
 			.on("click", selectNode)
-			.on("dblclick", createNodeOptionsPanel) // "contextmenu" would be for right click
+			.on("dblclick", createNodeOptionsPanel)
 			.call(d3.drag()
 				.on("start", dragstarted)
 				.on("drag", dragged)
@@ -471,21 +476,35 @@ var SVGGRAPH = (function() {
 			return;
 		}
 
+		var ajv = Ajv({ $data: true, allErrors: true});
+		// var ajv = Ajv({ $data: true, allErrors: true, removeAdditional: true});
+		ajv.addKeyword('containsNodeName', { $data:true, "validate": function (schema, data, parentSchema, currentDataPath, parentDataObject, parentProperty, rootData) {
+			for (let node of rootData.nodes) { // not supported in all browsers
+				if( node.name === data)
+					return true;
+			}
+			return false;
+		}, "errors": false });
+		var schema = topologySchema;
+		var validate = ajv.compile(schema);
+		var valid = validate(data);
+
+		if (!valid) {
+			console.error("IMPORT: invalid format: " + ajv.errorsText(validate.errors));
+			return;
+		}
+
 		// The || operator can be used to fill in default values:
+		var importObject = data;
 
-		node.remove(); // removes all associated elements
 		updateNodes(importObject.nodes);
-
-		link.remove();
 		updateLinks(importObject.links);
 
-		simulation
-			.nodes(importObject.nodes);
+		g.call(zoom.transform, d3.zoomIdentity);
 
-		//	.on('tick', tick);
-		simulation.force("link")
-			.links(importObject.links);
-		simulation.alpha(1).restart(); // not sure if this is needed
+		simulation.tick();
+		tick();
+
 	}
 
 	function svg_export() {
@@ -493,13 +512,12 @@ var SVGGRAPH = (function() {
 		exportObj.version = "0.0.1";
 		exportObj.nodes = node.data();
 		exportObj.links = [];	
-
 		var i, len = link.data().length;
 		for( i = 0; i < len; i++) {
 			exportObj.links.push({"source":link.data()[i].source.name, "target":link.data()[i].target.name});
 		}
 
-		return exportObj;
+		d3.select("textarea").property("value", JSON.stringify(exportObj));
 	}
 
 	// stuff we are exposing
