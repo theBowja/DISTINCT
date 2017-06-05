@@ -5,7 +5,7 @@ var SVGGRAPH = (function() {
 		.on("keydown", function() {
 			switch (d3.event.keyCode) {
 				case 27: // ESCAPE - for deselecting everything
-					d3.selectAll("#nodes circle.selected").classed("selected", false);
+					d3.selectAll("#nodes .selected").classed("selected", false);
 					d3.selectAll("#links line.selected").classed("selected", false);
 					control.selections.deselectsource();
 					break;
@@ -40,6 +40,7 @@ var SVGGRAPH = (function() {
 			var newnodes = simulation.nodes();
 			newnodes.push({
 				"name": "unnamed",
+				"shape": "circle",
 				"color": "black",
 				"x": (point[0] - transform.x)/transform.k,
 				"y": (point[1] - transform.y)/transform.k
@@ -90,7 +91,7 @@ var SVGGRAPH = (function() {
 		},
 		selections: { // TODO: should really make these their own functions
 			deletenodes: function() {
-				var seldats = d3.selectAll("#nodes circle.selected, circle.selectedforlink").data();
+				var seldats = d3.selectAll("#nodes .selected, .selectedforlink").data();
 				var newnodes = simulation.nodes();
 				var newlinks = simulation.force("link").links();
 				newnodes = newnodes.filter(function(dn) { // filters out any selected node
@@ -140,8 +141,9 @@ var SVGGRAPH = (function() {
 
 	var txtdmp = {"version":"0.0.1","nodes":[{"name":"My phone","color":"black","index":0,"x":461.2960405859041,"y":277.92884126106566,"vy":0.00012863524492965942,"vx":-0.00005998378344618709},{"name":"My laptop","color":"black","index":1,"x":498.3585749771392,"y":331.1443928567981,"vy":0.0003382745034393672,"vx":-0.00004791681585219554},{"name":"My tablet","color":"black","index":2,"x":511.9092850879242,"y":275.92844260557075,"vy":0.0005477273101865026,"vx":-0.00012739247996039184},{"name":"My computer","color":"black","index":3,"x":520.9278666139944,"y":304.5713866318403,"vy":0.000235276103997298,"vx":-0.0002378772954907092},{"name":"My tv","color":"black","index":4,"x":486.61810502198665,"y":265.43091965925606,"vy":0.0004097001932323695,"vx":0.0000323610571067794},{"name":"My router","color":"black","index":5,"x":487.0923152995146,"y":299.56160184746017,"vy":0.00041233983140895265,"vx":-0.00027013610325591714},{"name":"The internet","color":"black","index":6,"x":453.0860224586336,"y":317.5118684304733,"vy":0.0004637310243122259,"vx":-0.0002255792134990494},{"name":"Someone else's router","color":"green","index":7,"x":420.710626140119,"y":327.9257029767107,"vy":0.0006205849636372653,"vx":-0.00022729014994553914}],
 	"links":[{"source":"My laptop","target":"My router"},{"source":"My laptop","target":"My router"},{"source":"My phone","target":"My router"},{"source":"My computer","target":"My router"},{"source":"My tv","target":"My router"},{"source":"My router","target":"The internet"},{"source":"The internet","target":"Someone else's router"}]};
-	txtdmp = {"version":"0.0.1","nodes":[{"name":"ie 1","color":"black","index":0,"x":353.3908286970455,"y":301.0285597393892,"vy":-0.005671381775834789,"vx":-0.0023377073078231143,"fx":null,"fy":null},{"name":"ie 2","color":"black","index":1,"x":384.5963070891589,"y":289.8471094867676,"vy":-0.003501401612390198,"vx":-0.0015264385371461747},{"name":"ie 3","color":"black","index":2,"x":421.8858092171163,"y":283.848242953348,"vy":-0.0018996811528948028,"vx":-0.0009008103906307653},{"name":"ie 4","color":"black","index":3,"x":461.78207224624344,"y":283.41648262812555,"vy":-0.0009935134241543608,"vx":-0.00040407499857979327},{"name":"ie 5","color":"black","index":4,"x":501.89934031125756,"y":288.5866020592608,"vy":0.0014461846433615909,"vx":-0.00030026848997704615},{"name":"ie 6","color":"black","index":5,"x":539.4252678523063,"y":301.864090639488,"vy":-0.001580951370427995,"vx":0.000860606700657684,"fx":null,"fy":null},{"name":"ie 7","color":"black","index":6,"x":573.4299041145249,"y":318.8095253544606,"vy":-0.003881574633878184,"vx":0.0019016269267218468},{"name":"ie 8","color":"green","index":7,"x":603.5891661635018,"y":332.5812771268206,"vy":-0.002027693013540183,"vx":0.0014027572514599311,"fx":null,"fy":null}],
-	"links":[{"source":"ie 1","target":"ie 2"},{"source":"ie 2","target":"ie 3"},{"source":"ie 3","target":"ie 4"},{"source":"ie 4","target":"ie 5"},{"source":"ie 5","target":"ie 6"},{"source":"ie 6","target":"ie 7"},{"source":"ie 7","target":"ie 8"}]};
+	txtdmp = {"version":"0.0.1","nodes":[{"name":"1","shape":"circle","color":"black","x":373.4062915036888,"y":304.3490423414362,"index":0,"vy":-0.0010104530151794444,"vx":0.0005685494670281951,"fx":null,"fy":null},{"name":"2","shape":"circle","color":"black","x":405.9360270961612,"y":297.09069089579634,"index":1,"vy":-0.0005083965979797216,"vx":0.0005705702008230795,"fx":null,"fy":null},{"name":"3","shape":"circle","color":"black","x":442.9039222064543,"y":293.19999589048894,"index":2,"vy":-0.00040707117089366874,"vx":0.0003177414331838634,"fx":null,"fy":null},{"name":"4","shape":"circle","color":"black","x":478.7328677323633,"y":292.74436646886085,"index":3,"vy":-0.0004332399059194259,"vx":-0.000027168040559483033,"fx":null,"fy":null},{"name":"5","shape":"circle","color":"black","x":517.9206601148771,"y":294.898783962933,"index":4,"vy":-0.00034211261710555757,"vx":-0.0006686814693808545,"fx":null,"fy":null},{"name":"6","shape":"circle","color":"black","x":556.3556054949227,"y":300.11833590697097,"index":5,"vy":-0.0001734207284998586,"vx":-0.0012481035040000546,"fx":null,"fy":null},{"name":"7","shape":"circle","color":"black","x":584.7441933079741,"y":317.5935586712824,"index":6,"vy":-0.002351168195760112,"vx":0.00005454835403533543,"fx":null,"fy":null}],
+	"links":[{"source":"1","target":"2"},{"source":"2","target":"3"},{"source":"3","target":"4"},{"source":"4","target":"5"},{"source":"5","target":"6"},{"source":"6","target":"7"}]};
+
 
 	// put all this into a json
 	var nodes = [
@@ -178,7 +180,7 @@ var SVGGRAPH = (function() {
 		.selectAll("line");
 	var node = g.append("g")
 		.attr("id", "nodes")
-		.selectAll("circle");
+		.selectAll(".node");
 
 	updateNodes(nodes);
 	updateLinks(links);
@@ -203,7 +205,9 @@ var SVGGRAPH = (function() {
 		node.exit().remove(); // remove unused elements
 		nodenew = node.enter().append("circle") // acts on new elements
 			.attr("r", 9)
-			.attr("fill", function(d) { return d.color; })
+			.attr("fill", function(d) { return d.color; });
+		nodenew
+			.classed("node", true)
 			.on("click", selectNode)
 			.on("dblclick", createNodeOptionsPanel)
 			.call(d3.drag()
@@ -510,6 +514,8 @@ var SVGGRAPH = (function() {
 	function svg_export() {
 		var exportObj = {};
 		exportObj.version = "0.0.1";
+		({id, title}) => ({id, title})
+
 		exportObj.nodes = node.data();
 		exportObj.links = [];	
 		var i, len = link.data().length;

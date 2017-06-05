@@ -12,15 +12,28 @@
  -->
 	</head>
 	<body>
+		<button type="button" onclick="randomgraph()">big</button>
 		<button type="button" onclick="SVGGRAPH.svg_import()">import</button>
 		<input type="file">
 		<button type="button" onclick="SVGGRAPH.svg_export()">export</button></br>
 		<textarea></textarea></br>
 		<div tabindex="0" id="svgfocus" style="display:inline-block">
-		<svg width="960" height="600" style="border: 1px solid black;">
-		
-		</svg>
+		<svg width="960" height="600" style="border: 1px solid black;"></svg>
 		</div>
+
+		<script>
+		function randomgraph() {
+			var n = 1000,
+				rnodes = d3.range(n).map(function (d) {
+					return { name: d.toString(), color: "black" };
+				}),
+				rlinks = d3.range(n).map(function (d) {
+					return { source: d.toString(), target: ((d + 3) % n).toString() };
+				});
+				obj = JSON.stringify({ nodes: rnodes, links: rlinks });
+			d3.select("textarea").property("value", obj);
+		}
+		</script>
 		<script type="text/javascript" src="svg.js"></script>
 
 		<script type="text/javascript" src="topologySchema.js"></script>

@@ -25,6 +25,10 @@ routes.get('/login', function(req, res) {
 routes.post('/login', function (req, res) {
 	console.log("POST request for /login");
 
+	passport.authenticate('local', { failureRedirect: '/login'}), function(req,res) {
+		res.redirect('/user/dashboard');
+	};
+
 	validate( req.body.username, req.body.password, function(err,message) {
 		if( err) res.status(err).send(message); // will need an error handler
 		else {

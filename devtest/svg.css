@@ -8,51 +8,54 @@ svg {
 	cursor: default;
 }
 
+#nodes {
+	cursor: pointer;
+}
+
 #nodes circle {
-    /*fill: #000;*/
-    stroke: white;
-    stroke-width: 1.5px;
-    cursor: pointer;
+	/*fill: #000;*/
+	stroke: white;
+	stroke-width: 1.5px;
 }
 
-#nodes circle.optionsopen {
-	stroke: lightblue;
-	stroke-width: 2.5;
-}
+	#nodes .optionsopen {
+		stroke: lightblue;
+		stroke-width: 2.5;
+	}
 
-#nodes circle.selected {
-	stroke: orange;
-	stroke-width: 2.5;
-}
+	#nodes .selected {
+		stroke: orange;
+		stroke-width: 2.5;
+	}
 
-#nodes circle.selectedforlink {
-	stroke: orange;
-	stroke-width: 2.5;
+	#nodes .selectedforlink {
+		stroke: orange;
+		stroke-width: 2.5;
 
-	stroke-dasharray: 5,2;	
+		stroke-dasharray: 5,2;	
 
-    animation: dashspin 10s infinite linear;
-    -webkit-animation: dashspin 10s infinite linear;
-}
+		animation: dashspin 10s infinite linear;
+		-webkit-animation: dashspin 10s infinite linear;
+	}
 
-@keyframes dashspin {
-    0% { stroke-dashoffset: 0%; }
-    100% { stroke-dashoffset: 25%; }
-}
+		@keyframes dashspin {
+			0% { stroke-dashoffset: 0%; }
+			100% { stroke-dashoffset: 25%; }
+		}
 
-@-webkit-keyframes dashspin {
-    0% { stroke-dashoffset: 0%; }
-    100% { stroke-dashoffset: 25%; }
-}
+		@-webkit-keyframes dashspin {
+			0% { stroke-dashoffset: 0%; }
+			100% { stroke-dashoffset: 25%; }
+		}
 
 #links line {
-    stroke: #777;
-    stroke-width: 4px;
+	stroke: #777;
+	stroke-width: 5px;
 }
 
-#links line.selected {
-	stroke: orange;
-}
+	#links line.selected {
+		stroke: orange;
+	}
 
 #forms foreignObject {
 	width: 300px;
@@ -61,37 +64,33 @@ svg {
 /*				background-color: #F1F1F1; */
 }
 
-.close-custom { /* copied from bootstrap's */
-	-webkit-appearance: none;
-	padding: 0;
-	cursor: pointer;
-	background: transparent;
-	border: 0;
+	.close-custom { /* copied from bootstrap's */
+		-webkit-appearance: none;
+		padding: 0;
+		cursor: pointer;
+		background: transparent;
+		border: 0;
 
-	float: right;
-	font-size: 21px;
-	font-weight: bold;
-	line-height: 1;
-	color: #CCC;
-	text-shadow: 0 1px 0 #fff;
+		float: right;
+		font-size: 21px;
+		font-weight: bold;
+		line-height: 1;
+		color: #CCC;
+		text-shadow: 0 1px 0 #fff;
 
-/*				filter: alpha(opacity=20); 
-	opacity: 0.2;*/             /* for some reason this doesn't work for me */ 
-}
+	/*				filter: alpha(opacity=20); 
+		opacity: 0.2;*/             /* for some reason this doesn't work for me */ 
+	}
 
-.close-custom:hover, .close-custom:focus {
-	color: #7F7F7F;
-	text-decoration: none;
-	cursor: pointer;
-}
+	.close-custom:hover, .close-custom:focus {
+		color: #7F7F7F;
+		text-decoration: none;
+		cursor: pointer;
+	}
 
-/*#toolbox-media-box {
-	fill: lightgrey;
-}
-
-#toolbox-media-button:hover #toolbox-media-box, #toolbox-media-button:focus #toolbox-media-box {
-	fill: grey;
-}*/
+	option {
+		font-size: 16px;
+	}
 
 .toolbox-box {
 	fill: lightgrey;
@@ -99,8 +98,4 @@ svg {
 
 .toolbox-button:hover .toolbox-box {
 	fill: grey;
-}
-
-option {
-	font-size: 16px;
 }
