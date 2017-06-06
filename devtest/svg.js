@@ -554,8 +554,8 @@ var SVGGRAPH = (function() {
 		updateNodes(importObject.nodes);
 		updateLinks(importObject.links);
 
-		// resets zoom
-		g.call(zoom.transform, d3.zoomIdentity);
+		// resets zoom and translate (recenters)
+		d3.select("#background").call(zoom.transform, d3.zoomIdentity);
 
 		simulation.tick();
 		tick();
