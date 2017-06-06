@@ -8,14 +8,20 @@ svg {
 	cursor: default;
 }
 
+#svgfocus {
+	position: absolute;
+	left: 10%;
+
+}
+
 #nodes {
 	cursor: pointer;
 }
 
-#nodes circle {
+#nodes path {
 	/*fill: #000;*/
 	stroke: white;
-	stroke-width: 1.5px;
+	stroke-width: 1px;
 }
 
 	#nodes .optionsopen {

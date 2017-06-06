@@ -8,7 +8,6 @@ var topologySchema = {
 			    "type": "object",
 			    "properties": {
 			    	"name": { "type": "string" },
-			    	"shape": { "type": "string"},
 			    	"color": { "type": "string" }
 			    },
 			    "required": ["name", "color"]

@@ -6,7 +6,7 @@ var SVGGRAPH = (function() {
 			switch (d3.event.keyCode) {
 				case 27: // ESCAPE - for deselecting everything
 					d3.selectAll("#nodes .selected").classed("selected", false);
-					d3.selectAll("#links line.selected").classed("selected", false);
+					d3.selectAll("#links .selected").classed("selected", false);
 					control.selections.deselectsource();
 					break;
 				case 46: // DELETE
@@ -17,13 +17,13 @@ var SVGGRAPH = (function() {
 			}
 		});
 
-	var svg = d3.select("svg")
+	var svg = d3.select("svg");
 	var width = +svg.attr("width");
 	var height = +svg.attr("height");
 
 	// for zooming
 	var zoom = d3.zoom()
-		.scaleExtent([1 / 2, 4])
+		.scaleExtent([1 / 10, 20])
 		.on("zoom", zoomed);
 	svg.append("rect")
 		.attr("id", "background")
@@ -34,13 +34,12 @@ var SVGGRAPH = (function() {
 		.call(zoom)
 		.on("dblclick.zoom", null)
 		.on("dblclick", function() {
-			// console.log(d3.zoomTransform(this));
 			var point = d3.mouse(this);
 			var transform = d3.zoomTransform(this);
 			var newnodes = simulation.nodes();
 			newnodes.push({
-				"name": "unnamed",
-				"shape": "circle",
+				"name": "n-" + (Math.random().toString(36)+'00000000000000000').slice(2, 7+2), // TODO: guarantee that this string is a unique name
+				"shape": control.toolshape,
 				"color": "black",
 				"x": (point[0] - transform.x)/transform.k,
 				"y": (point[1] - transform.y)/transform.k
@@ -79,15 +78,30 @@ var SVGGRAPH = (function() {
 			if (state === true) {
 				d3.select("#interaction-path").attr("d", "M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"); // circle plus icon
 				d3.select("#interaction-title").text("Create node (DOUBLE CLICK)/link (SHIFT+CLICK two nodes) or remove a selected node/link (DELETE)");
+				d3.select("#toolBoundBox").attr("height", 72); // shows shape
 			} else if (state === false) {
 				d3.select("#interaction-path").attr("d", "M10,2A2,2 0 0,1 12,4V8.5C12,8.5 14,8.25 14,9.25C14,9.25 16,9 16,10C16,10 18,9.75 18,10.75C18,10.75 20,10.5 20,11.5V15C20,16 17,21 17,22H9C9,22 7,15 4,13C4,13 3,7 8,12V4A2,2 0 0,1 10,2Z"); // drag cursor icon
 				d3.select("#interaction-title").text("Drag node/link or edit its properties (DOUBLE CLICK)");
+				d3.select("#toolBoundBox").attr("height", 48); // hides shape
 				control.selections.deselectsource();
 			}
 			// regular mouse pointer icon; maybe to implement a selection tool
 			//.attr("d", "M13.64,21.97C13.14,22.21 12.54,22 12.31,21.5L10.13,16.76L7.62,18.78C7.45,18.92 7.24,19 7,19A1,1 0 0,1 6,18V3A1,1 0 0,1 7,2C7.24,2 7.47,2.09 7.64,2.23L7.65,2.22L19.14,11.86C19.57,12.22 19.62,12.85 19.27,13.27C19.12,13.45 18.91,13.57 18.7,13.61L15.54,14.23L17.74,18.96C18,19.46 17.76,20.05 17.26,20.28L13.64,21.97Z")
 			// move icon; probably useless
 			//.attr("d", "M13,6V11H18V7.75L22.25,12L18,16.25V13H13V18H16.25L12,22.25L7.75,18H11V13H6V16.25L1.75,12L6,7.75V11H11V6H7.75L12,1.75L16.25,6H13Z")
+		},
+		shapes: ["circle", "cross", "diamond", "square", "star", "triangle", "wye"],
+		toolshape: 0, // index of the array above
+		getShape: function(s) { // defaults to 0: circle
+			switch (typeof s) {
+				case "number":
+					return d3.symbols[s >= 0 && s <= 6 ? s : 0];
+				case "string":
+					var index = this.shapes.indexOf(s.toLowerCase());
+					return d3.symbols[index !== -1 ? index : 0];
+				default:
+					return d3.symbols[0];
+			}
 		},
 		selections: { // TODO: should really make these their own functions
 			deletenodes: function() {
@@ -135,38 +149,18 @@ var SVGGRAPH = (function() {
 
 					this.source = undefined;
 				}
-			}
+			},
+			canZoom: true // unimplemented
 		},
 	};
 
-	var txtdmp = {"version":"0.0.1","nodes":[{"name":"My phone","color":"black","index":0,"x":461.2960405859041,"y":277.92884126106566,"vy":0.00012863524492965942,"vx":-0.00005998378344618709},{"name":"My laptop","color":"black","index":1,"x":498.3585749771392,"y":331.1443928567981,"vy":0.0003382745034393672,"vx":-0.00004791681585219554},{"name":"My tablet","color":"black","index":2,"x":511.9092850879242,"y":275.92844260557075,"vy":0.0005477273101865026,"vx":-0.00012739247996039184},{"name":"My computer","color":"black","index":3,"x":520.9278666139944,"y":304.5713866318403,"vy":0.000235276103997298,"vx":-0.0002378772954907092},{"name":"My tv","color":"black","index":4,"x":486.61810502198665,"y":265.43091965925606,"vy":0.0004097001932323695,"vx":0.0000323610571067794},{"name":"My router","color":"black","index":5,"x":487.0923152995146,"y":299.56160184746017,"vy":0.00041233983140895265,"vx":-0.00027013610325591714},{"name":"The internet","color":"black","index":6,"x":453.0860224586336,"y":317.5118684304733,"vy":0.0004637310243122259,"vx":-0.0002255792134990494},{"name":"Someone else's router","color":"green","index":7,"x":420.710626140119,"y":327.9257029767107,"vy":0.0006205849636372653,"vx":-0.00022729014994553914}],
-	"links":[{"source":"My laptop","target":"My router"},{"source":"My laptop","target":"My router"},{"source":"My phone","target":"My router"},{"source":"My computer","target":"My router"},{"source":"My tv","target":"My router"},{"source":"My router","target":"The internet"},{"source":"The internet","target":"Someone else's router"}]};
-	txtdmp = {"version":"0.0.1","nodes":[{"name":"1","shape":"circle","color":"black","x":373.4062915036888,"y":304.3490423414362,"index":0,"vy":-0.0010104530151794444,"vx":0.0005685494670281951,"fx":null,"fy":null},{"name":"2","shape":"circle","color":"black","x":405.9360270961612,"y":297.09069089579634,"index":1,"vy":-0.0005083965979797216,"vx":0.0005705702008230795,"fx":null,"fy":null},{"name":"3","shape":"circle","color":"black","x":442.9039222064543,"y":293.19999589048894,"index":2,"vy":-0.00040707117089366874,"vx":0.0003177414331838634,"fx":null,"fy":null},{"name":"4","shape":"circle","color":"black","x":478.7328677323633,"y":292.74436646886085,"index":3,"vy":-0.0004332399059194259,"vx":-0.000027168040559483033,"fx":null,"fy":null},{"name":"5","shape":"circle","color":"black","x":517.9206601148771,"y":294.898783962933,"index":4,"vy":-0.00034211261710555757,"vx":-0.0006686814693808545,"fx":null,"fy":null},{"name":"6","shape":"circle","color":"black","x":556.3556054949227,"y":300.11833590697097,"index":5,"vy":-0.0001734207284998586,"vx":-0.0012481035040000546,"fx":null,"fy":null},{"name":"7","shape":"circle","color":"black","x":584.7441933079741,"y":317.5935586712824,"index":6,"vy":-0.002351168195760112,"vx":0.00005454835403533543,"fx":null,"fy":null}],
+	var txtdmp = {"version":"0.0.1","nodes":[{"name":"My phone","color":"black","x":463.7487981990966,"y":277.18663881688013},{"name":"My laptop","color":"black","x":500.2267180379261,"y":332.90985447583705},{"name":"My tablet","color":"black","x":510.5318118655692,"y":277.23885693548266,"fx":null,"fy":null},{"name":"My computer","color":"black","x":520.8680499946377,"y":302.7002134314309},{"name":"My tv","color":"black","x":487.7817741297175,"y":267.73918496475125},{"name":"My router","color":"black","x":486.8239392676516,"y":302.16482283480207,"fx":null,"fy":null},{"name":"The internet","color":"black","x":451.36319453922584,"y":315.7085020093186},{"name":"Someone else's router","color":"green","x":418.6361500337585,"y":324.469949371918}],
+	"links":[{"source":"My laptop","target":"My router"},{"source":"My laptop","target":"My router"},{"source":"My phone","target":"My router"},{"source":"My computer","target":"My router"},{"source":"My tv","target":"My router"},{"source":"My router","target":"The internet"},{"source":"The internet","target":"Someone else's router"},{"source":"My router","target":"My tablet"}]};
+	txtdmp = {"version":"0.0.1","nodes":[{"name":"1","shape":"square","color":"black","x":373.47198280933173,"y":304.2330251471679,"fx":null,"fy":null},{"name":"2","shape":"circle","color":"black","x":405.94890466367633,"y":297.03434309760524,"fx":null,"fy":null},{"name":"3","shape":"circle","color":"black","x":442.5840908088773,"y":293.1901564697954,"fx":null,"fy":null},{"name":"4","shape":"circle","color":"black","x":479.2707415850414,"y":292.7256692634419,"fx":null,"fy":null},{"name":"5","shape":"circle","color":"black","x":518.2299523310276,"y":294.90936407878235,"fx":null,"fy":null},{"name":"6","shape":"circle","color":"black","x":556.2646364427482,"y":300.28681086232586,"fx":null,"fy":null},{"name":"7","shape":"circle","color":"black","x":583.8554231282451,"y":316.8585595154867,"fx":null,"fy":null}],
 	"links":[{"source":"1","target":"2"},{"source":"2","target":"3"},{"source":"3","target":"4"},{"source":"4","target":"5"},{"source":"5","target":"6"},{"source":"6","target":"7"}]};
 
-
-	// put all this into a json
-	var nodes = [
-		{ "name": "ie 1", "color": "black" },
-		{ "name": "ie 2", "color": "black" },
-		{ "name": "ie 3", "color": "black" },
-		{ "name": "ie 4", "color": "black" },
-		{ "name": "ie 5", "color": "black" },
-		{ "name": "ie 6", "color": "black" },
-		{ "name": "ie 7", "color": "black" },
-		{ "name": "ie 8", "color": "green" }
-	];
-	var links = [
-		{ "source": "ie 1", "target": "ie 2" },
-		{ "source": "ie 2", "target": "ie 3" },
-		{ "source": "ie 3", "target": "ie 4" },
-		{ "source": "ie 4", "target": "ie 5" },
-		{ "source": "ie 5", "target": "ie 6" },
-		{ "source": "ie 6", "target": "ie 7" },
-		{ "source": "ie 7", "target": "ie 8" },
-	];
-	nodes = txtdmp.nodes;
-	links = txtdmp.links;
+	var nodes = txtdmp.nodes;
+	var links = txtdmp.links;
 
 	var simulation = d3.forceSimulation()
 		.force("link", d3.forceLink().id(function(d) { return d.name; })) // force link with id specified
@@ -180,7 +174,7 @@ var SVGGRAPH = (function() {
 		.selectAll("line");
 	var node = g.append("g")
 		.attr("id", "nodes")
-		.selectAll(".node");
+		.selectAll("path");
 
 	updateNodes(nodes);
 	updateLinks(links);
@@ -203,11 +197,11 @@ var SVGGRAPH = (function() {
 	function updateNodes(nodes) {
 		node = node.data(nodes, function(d){return d.name;}); // join new data with old elements
 		node.exit().remove(); // remove unused elements
-		nodenew = node.enter().append("circle") // acts on new elements
-			.attr("r", 9)
-			.attr("fill", function(d) { return d.color; });
-		nodenew
-			.classed("node", true)
+		nodenew = node.enter().append("path") // acts on new elements
+			.attr("d", d3.symbol()
+				.size(function(d) { return d.size || 200; })
+				.type(function(d) { return control.getShape(d.shape); }))
+		 	.attr("fill", function(d) { return d.color; })
 			.on("click", selectNode)
 			.on("dblclick", createNodeOptionsPanel)
 			.call(d3.drag()
@@ -275,11 +269,22 @@ var SVGGRAPH = (function() {
 		var clip = toolBox.append("defs").append("clipPath")
 			.attr("id", "toolclipBox");
 		clip.append("rect")
-			.attr("id", "toolBox")
+			.attr("id", "toolBoundBox")
 			.attr("width", 24)
 			.attr("height", 48)
-			.attr("rx", 2)
-			.attr("ry", 2)
+			.attr("rx", 5)
+			.attr("ry", 5)
+			.style("fill", "none")
+			.style("stroke", "black")
+			.style("stroke-width", 2);
+		clip.append("rect")
+			.attr("id", "shapesBoundBox")
+			.attr("transform", "translate(24,48)")
+			.attr("width", 24*control.shapes.length)
+			.attr("height", 24)
+			.attr("rx", 5)
+			.attr("ry", 5)
+			.attr("visibility", "collapse")
 			.style("fill", "none")
 			.style("stroke", "black")
 			.style("stroke-width", 2);
@@ -287,53 +292,93 @@ var SVGGRAPH = (function() {
 		toolBox.attr("clip-path", "url(#toolclipBox)");
 
 		// MEDIA ICON
-		var mediabutton = toolBox.append("g")
-			.attr("class", "toolbox-button")
-			.attr("transform", "translate(0,0)")
-			.on("click", function() { // when user clicks this, this function alternates media symbols
-				control.canPlay = !control.canPlay;
-				control.updateMediaButton();
-			});
-		mediabutton.append("title")
-			.attr("id", "media-title");
-		mediabutton.append("rect")
-			.attr("class", "toolbox-box")
-			.attr("width", 24)
-			.attr("height", 24)
-			.attr("shape-rendering", "crispEdges");
-		mediabutton.append("path")
-			.attr("id", "media-path");
+		var mediabutton = toolboxButtonMaker("media","translate(0,0)");
+		mediabutton.on("click", function() { // when user clicks this, this function alternates media symbols
+			control.canPlay = !control.canPlay;
+			control.updateMediaButton();
+		});
 		control.updateMediaButton();
 
 		// INTERACTION ICON - drag/edit properties vs. create/delete
-		var interactionbutton = toolBox.append("g")
-			.attr("class", "toolbox-button")
-			.attr("transform", "translate(0,24)")
-			.on("click", function() { // when user clicks this, it alternates levels of interactivity
+		var interactionbutton = toolboxButtonMaker("interaction","translate(0,24)");
+		interactionbutton.on("click", function() { // when user clicks this, it alternates levels of interactivity
 				control.canCreate = !control.canCreate;
 				control.updateInteractionButton();
-			});
-		interactionbutton.append("title")
-			.attr("id", "interaction-title");
-		interactionbutton.append("rect")
+		});
+		control.updateInteractionButton();
+
+		// SHAPE MENU - allows you to choose what shape is created when you double-click background
+		var shapebutton = toolboxButtonMaker("shape","translate(0,48)");
+		shapebutton.on("click", function() { // when user clicks this, it opens up a shape menu
+			var shapesMenu = d3.select("#shapesBoundBox");
+			if (shapesMenu.attr("visibility") === "visible") {
+				shapesMenu.attr("visibility", "collapse");
+			} else {
+				shapesMenu.attr("visibility", "visible");
+			}
+		});
+		shapebutton.select("title")
+			.text("Click here to open shapes menu");
+		shapebutton.select("path")
+			.attr("transform", "translate(12,12)")
+			.attr("d", d3.symbol()
+				.size(150)
+				.type(control.getShape(control.toolshape)));
+		initShapeMenu(shapebutton);
+
+		// make visible the actual outline we used
+		toolBox.append("use")
+			.attr("href", "#toolBoundBox")
+			.style("stroke-width", 1); // actual stroke-width := min(this.stroke-width, clip.stroke-width)
+		toolBox.append("use")
+			.attr("href", "#shapesBoundBox")
+			.style("stroke-width", 1);
+	}
+
+	function initShapeMenu() {
+		for (var i = 0; i < control.shapes.length; i++) {
+			var shapebutton = toolboxButtonMaker(control.shapes[i],"translate("+(24*(i+1))+",48)");
+			shapebutton.on("click", function() {
+				var name = control.shapes[i];
+				return function () {
+					control.toolshape = name;
+					d3.select("#shape-path")
+						.attr("transform", "translate(12,12)")
+						.attr("d", d3.symbol()
+							.size(150)
+							.type(control.getShape(name)));
+					d3.select("#shapesBoundBox").attr("visibility", "collapse");
+				};
+			}());
+			shapebutton.select("title")
+				.text(control.shapes[i]);
+			shapebutton.select("path")
+				.attr("transform", "translate(12,12)")
+				.attr("d", d3.symbol()
+					.size(150)
+					.type(d3.symbols[i]));
+		}
+	}
+
+	// one function to create them all!
+	function toolboxButtonMaker(name,transform) {
+		var custombutton = toolBox.append("g")
+			.attr("class", "toolbox-button")
+			.attr("transform", transform);
+		custombutton.append("title")
+			.attr("id", name + "-title");
+		custombutton.append("rect")
 			.attr("class", "toolbox-box")
 			.attr("width", 24)
 			.attr("height", 24)
 			.attr("shape-rendering", "crispEdges");
-		interactionbutton.append("path")
-			.attr("id", "interaction-path");
-		control.updateInteractionButton();
-
-		// make visible the actual outline we used
-		toolBox.append("use")
-			.attr("href", "#toolBox")
-			.attr("transform", "translate(0,0)") // unneeded but OCD
-			.style("stroke-width", 1); // actual stroke-width := min(this.stroke-width, clip.stroke-width)
-		}
+		custombutton.append("path")
+			.attr("id", name + "-path");
+		return custombutton;
+	}
 
 	function tick() {
-		node.attr("cx", function(d) { return d.x; })
-			.attr("cy", function(d) { return d.y; });
+		node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
 		link.attr("x1", function(d) { return d.source.x; })
 			.attr("y1", function(d) { return d.source.y; })
@@ -498,12 +543,18 @@ var SVGGRAPH = (function() {
 			return;
 		}
 
+
 		// The || operator can be used to fill in default values:
 		var importObject = data;
+
+		// clear existing graph
+		updateNodes([]);
+		updateLinks([]);
 
 		updateNodes(importObject.nodes);
 		updateLinks(importObject.links);
 
+		// resets zoom
 		g.call(zoom.transform, d3.zoomIdentity);
 
 		simulation.tick();
@@ -514,12 +565,13 @@ var SVGGRAPH = (function() {
 	function svg_export() {
 		var exportObj = {};
 		exportObj.version = "0.0.1";
-		({id, title}) => ({id, title})
-
 		exportObj.nodes = node.data();
-		exportObj.links = [];	
-		var i, len = link.data().length;
-		for( i = 0; i < len; i++) {
+		// remove excessive stuff
+		for(var i = 0; i < exportObj.nodes.length; i++) { delete exportObj.nodes[i].vx; delete exportObj.nodes[i].vy; delete exportObj.nodes[i].index;}
+
+
+		exportObj.links = [];
+		for( var i = 0; i < link.data().length; i++) {
 			exportObj.links.push({"source":link.data()[i].source.name, "target":link.data()[i].target.name});
 		}
 
