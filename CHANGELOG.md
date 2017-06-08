@@ -14,6 +14,10 @@ Tags are:
 
 ## [Unreleased]
 
+## [0.0.13] - 2017-06-08
+### Added
+- can create nodes of different shapes
+
 ## [0.0.12] - 2017-06-01
 ### Added
 - can select nodes and links
