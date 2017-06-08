@@ -14,6 +14,7 @@
 	<body>
 		<button type="button" onclick="randomgraph()">big</button>
 		<button type="button" onclick="SVGGRAPH.svg_import()">import</button>
+		<button type="button" onclick='d3.select("textarea").property("value", "{\"nodes\":[],\"links\":[]}");SVGGRAPH.svg_import()'>clear</button>
 		<input type="file">
 		<button type="button" onclick="SVGGRAPH.svg_export()">export</button></br>
 		<textarea></textarea></br>
@@ -28,7 +29,7 @@
 					return { name: d.toString(), shape: "circle", color: "black"};
 				}),
 				rlinks = d3.range(n).map(function (d) {
-					return { source: d.toString(), target: ((d + 4) % n).toString() };
+					return { source: d.toString(), target: ((d + 8) % n).toString() };
 					//return { source: d.toString(), target: (Math.floor((Math.random() * n))).toString() };
 					//return { source: d.toString(), target: "1" };
 

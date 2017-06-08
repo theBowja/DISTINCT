@@ -19,7 +19,6 @@ svg {
 }
 
 #nodes path {
-	/*fill: #000;*/
 	stroke: white;
 	stroke-width: 1px;
 }
@@ -40,8 +39,8 @@ svg {
 
 		stroke-dasharray: 5,2;	
 
-		animation: dashspin 10s infinite linear;
-		-webkit-animation: dashspin 10s infinite linear;
+		animation: dashspin 15s infinite linear;
+		-webkit-animation: dashspin 15s infinite linear;
 	}
 
 		@keyframes dashspin {

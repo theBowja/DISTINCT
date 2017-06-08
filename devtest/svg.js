@@ -34,11 +34,13 @@ var SVGGRAPH = (function() {
 		.call(zoom)
 		.on("dblclick.zoom", null)
 		.on("dblclick", function() {
+			if (!control.canCreate) return;
+
 			var point = d3.mouse(this);
 			var transform = d3.zoomTransform(this);
 			var newnodes = simulation.nodes();
 			newnodes.push({
-				"name": "n-" + (Math.random().toString(36)+'00000000000000000').slice(2, 7+2), // TODO: guarantee that this string is a unique name
+				"name": "n" + control.toolshape + "-" + (Math.random().toString(36)+'00000000000000000').slice(2, 7+2), // TODO: guarantee that this string is a unique name
 				"shape": control.toolshape,
 				"color": "black",
 				"x": (point[0] - transform.x)/transform.k,
