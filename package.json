@@ -8,7 +8,7 @@
   "dependencies": {
     "body-parser": "1.14.x",
     "bootstrap": "3.3.x",
-    "cloudant": "1.4.x",
+    "cloudant": "1.8.x",
     "d3": "^4.5.0",
     "express": "4.13.x",
     "express-session": "^1.14.2",
@@ -19,7 +19,7 @@
   },
   "repository": {},
   "engines": {
-    "node": "4.x"
+    "node": "6.x"
   },
   "main": "app.js",
   "devDependencies": {},

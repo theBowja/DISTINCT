@@ -1,7 +1,7 @@
 var express = require('express'), app = express(), http = require('http'), session = require('express-session');
 var path = require('path'), fs = require('fs');
 
-var config = require('./config'); // I think this is how a config file should work
+var config = require('./config/config.js'); // I think this is how a config file should work
 var routes = require('./routes');
 
 var db = require('./database');

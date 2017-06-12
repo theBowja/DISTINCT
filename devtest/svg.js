@@ -1,4 +1,5 @@
 var SVGGRAPH = (function() {
+	"use strict"
 
 	// init for delete selected nodes/links functionality
 	d3.select("#svgfocus")
@@ -199,7 +200,7 @@ var SVGGRAPH = (function() {
 	function updateNodes(nodes) {
 		node = node.data(nodes, function(d){return d.name;}); // join new data with old elements
 		node.exit().remove(); // remove unused elements
-		nodenew = node.enter().append("path") // acts on new elements
+		var nodenew = node.enter().append("path") // acts on new elements
 			.attr("d", d3.symbol()
 				.size(function(d) { return d.size || 200; })
 				.type(function(d) { return control.getShape(d.shape); }))
