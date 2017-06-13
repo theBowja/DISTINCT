@@ -4,23 +4,24 @@ var user = require('./user');
 var db = require('../database');
 
 
-
 var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
+var pt = require('../config/passport.js');
+// var passport = require('passport');
+// var LocalStrategy = require('passport-local').Strategy;
 
-passport.use(new LocalStrategy( function(username, password, done) {
-		User.findOne({ username: username }, function(err, user) {
-			if (err) { return done(err); }
-			if (!user) {
-				return done(null, false, { message: 'Incorrect username.' });
-			}
-			if (!user.validPassword(password)) {
-				return done(null, false, { message: 'Incorrect password.' });
-			}
-			return done(null, user);
-		});
-	}
-));
+// passport.use(new LocalStrategy( function(username, password, done) {
+// 		User.findOne({ username: username }, function(err, user) {
+// 			if (err) { return done(err); }
+// 			if (!user) {
+// 				return done(null, false, { message: 'Incorrect username.' });
+// 			}
+// 			if (!user.validPassword(password)) {
+// 				return done(null, false, { message: 'Incorrect password.' });
+// 			}
+// 			return done(null, user);
+// 		});
+// 	}
+// ));
 
 
 routes.use('/user', user);
@@ -43,26 +44,10 @@ routes.get('/login', function(req, res) {
 
 // This responds a POST request for the loginpage
 // with passport.js middleware
-routes.post('/login', passport.authenticate('local', { failureRedirect: '/login'}), function (req, res) {
-	console.log("POST request for /login");
+routes.post('/login', passport.authenticate('local-login', { failureRedirect: '/login'}), function (req, res) {
 
-		res.redirect('/user/dashboard');
+	res.redirect('/user/dashboard');
 
-	// validate( req.body.username, req.body.password, function(err,message) {
-	// 	if( err) res.status(err).send(message); // will need an error handler
-	// 	else {
-	// 		//var longmessage = req.body.username + ' has logged in successfully <a href="login">Login</a>';
-	// 		//longmessage = longmessage + '</br></br>account created: ' + message;
-
-	// 		req.session.user = req.body.username;
-	// 		req.session.admin = message;
-
-	// 		res.redirect('/user/dashboard');
-	// 	}
-	// });
-
-	//res.status(401).send('<h1>failed login</h1><a href="login">try again</a>');
-	// }
 });
 
 function validate( user, pass, callback) {

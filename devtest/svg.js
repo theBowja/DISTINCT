@@ -1,5 +1,5 @@
 var SVGGRAPH = (function() {
-	"use strict"
+	"use strict";
 
 	// init for delete selected nodes/links functionality
 	d3.select("#svgfocus")

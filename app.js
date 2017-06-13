@@ -1,17 +1,18 @@
-var express = require('express'), app = express(), http = require('http'), session = require('express-session');
+var express = require('express'), app = express(), http = require('http');
 var path = require('path'), fs = require('fs');
 
 var config = require('./config/config.js'); // I think this is how a config file should work
 var routes = require('./routes');
-
 var db = require('./database');
 
-// Warning: http://andrewkelley.me/post/do-not-use-bodyparser-with-express-js.html
+// middleware
 var bodyParser = require('body-parser'); // needed to touch body
-app.use(bodyParser.urlencoded({ extended: true })); // populates object with key-value pairs. value can be string or array when extended: false, or any type when extended: true.
-app.use(bodyParser.json());
+var session = require('express-session');
+var passport = require('passport');
 
-// using express-session
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true })); // populates object with key-value pairs. value can be string or array when extended: false, or any type when extended: true.
+//app.use(multer());
 app.use(session({
 	secret: 'bunny buddy',
 	resave: true,
@@ -22,17 +23,17 @@ app.use(session({
 		maxAge: 60000 // 60000 is one minute
 	}
 }));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Configure jade as template engine
 app.set('view engine', 'pug');
-app.set('views', __dirname + '/views');
-
-app.use(express.static(__dirname + '/views'));//temp
+app.set('views', path.join(__dirname, 'views'));
 
 // Serve static content from "public" directory
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(__dirname + '/public/style'));
 app.use(express.static(__dirname + '/node_modules/bootstrap/dist/css'));
+//app.use(express.static(path.join(__dirname + 'views'))); // to serve any file in this folder
 
 app.use('/', routes);
 
@@ -56,36 +57,12 @@ app.get('/dbinit', function (req, res) {
 		}
 	});
 
-	//db.get("bunny", function(err,body) {
- 	//if (!err)
-    //	console.log(body.last);
-	//});
-
-	// db.list(function(err, allDbs) {
- // 		res.send('All my databases: %s', allDbs.join(', '));
-	// });
-
-	// var docs =s db.allDocs(function(err, res) {
-	// })
-
-	// db.index(function(er, result) {
- //  		if (er) {
- //   			throw er;
- // 		}
- 		
-	// res.send('The database has ' + result.indexes.length + ' indexes');
- // 	});
- 
-
 });
 
 app.use('*', function(req,res){
 	res.status(404).send('404 page not found');
 });
 
-app.listen(config.port);
-console.log('Express server listening on port ' + config.port);
-
-// http.createServer(app).listen(app.get('port'), '0.0.0.0', function() {
-// 	console.log('Express server listening on port ' + app.get('port'));
-// });
+app.listen(config.port, function() {
+	console.log('Express server listening on port ' + config.port);
+});

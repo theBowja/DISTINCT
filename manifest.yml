@@ -3,8 +3,9 @@ applications:
   memory: 512M
   instances: 1
   domain: mybluemix.net
-  name: ex-tokamak
-  host: ex-tokamak
+  name: DISTINCT
+  host: DISTINCT
   disk_quota: 1024M
   services:
-  - ex-tokamak-cloudantNoSQLDB
+  - DISTINCT-cloudantNoSQLDB
+  - availability-monitoring-auto
