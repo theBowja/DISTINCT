@@ -8,7 +8,7 @@ var db = require('../database');
 
 var passport = require('passport');
 
-routes.use('/user', user);
+routes.use('/u', user);
 
 
 routes.get('/', function(req, res) {
@@ -22,7 +22,7 @@ routes.get('/login', function(req, res) {
 	res.render('login');
 });
 
-routes.post('/login', passport.authenticate('local-login', { successRedirect:'/user/dashboard', failureRedirect: '/login'}), function (req, res) {
+routes.post('/login', passport.authenticate('local-login', { successRedirect:'/u/dashboard', failureRedirect: '/login'}), function (req, res) {
 	console.log("login success");
 	//res.redirect('/user/dashboard');
 });

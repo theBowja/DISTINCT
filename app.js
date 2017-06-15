@@ -25,7 +25,7 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-require('./config/auth.js')();
+require('./config/auth.js');
 
 // Configure jade as template engine
 app.set('view engine', 'pug');

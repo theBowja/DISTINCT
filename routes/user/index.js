@@ -19,8 +19,8 @@ user.use(function(req,res,next) {
 		next();
 	} else {
 		console.log('not logged in');
-		next();
-		//res.redirect('/login');
+		//next();
+		res.redirect('/login');
 	}
 
 

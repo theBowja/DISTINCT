@@ -1,5 +1,3 @@
-module.exports = function() {
-
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var bcrypt = require('bcrypt');
@@ -87,9 +85,3 @@ passport.use('local-signup', new LocalStrategy({passReqToCallback:true}, functio
 		});
 	});
 }));
-
-
-
-
-
-}
