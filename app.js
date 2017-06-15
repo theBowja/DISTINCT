@@ -2,13 +2,13 @@ var express = require('express'), app = express(), http = require('http');
 var path = require('path'), fs = require('fs');
 
 var config = require('./config/config.js'); // I think this is how a config file should work
-var routes = require('./routes');
 var db = require('./database');
 
 // middleware
 var bodyParser = require('body-parser'); // needed to touch body
 var session = require('express-session');
 var passport = require('passport');
+//require('./config/auth.js'); // initialize
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // populates object with key-value pairs. value can be string or array when extended: false, or any type when extended: true.
@@ -25,6 +25,7 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+require('./config/auth.js')();
 
 // Configure jade as template engine
 app.set('view engine', 'pug');
@@ -35,6 +36,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 //app.use(express.static(path.join(__dirname + 'views'))); // to serve any file in this folder
 
+var routes = require('./routes');
 app.use('/', routes);
 
 app.get('/session', function(req,res) {

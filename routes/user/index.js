@@ -11,16 +11,32 @@ var userAdmin = require('./admin');
 // middleware
 // user must be logged in
 user.use(function(req,res,next) {
-	if (!req.session || !req.session.user) {
-		res.redirect('/login');
-	} else {
+	console.log('checking cookie');
+	// passport restores session data in req.user
+
+	if (req.isAuthenticated()) {
+		console.log('next');
 		next();
+	} else {
+		console.log('not logged in');
+		next();
+		//res.redirect('/login');
 	}
+
+
+	//if (!req.user) {
+	// 	console.log('not logged in')
+	// 	res.redirect('/login');
+	// } else {
+	// 	console.log('next');
+	// 	next();
+	// }
 });
 
-user.use('/', userAdmin);
+//user.use('/', userAdmin);
 
 user.get('/', function(req,res) {
+	console.log("GET request for /user homepage");
 	res.redirect('dashboard');
 });
 

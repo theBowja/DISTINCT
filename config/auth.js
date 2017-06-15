@@ -1,3 +1,5 @@
+module.exports = function() {
+
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var bcrypt = require('bcrypt');
@@ -10,24 +12,23 @@ var cloudant = require('cloudant');
 
 /// used to serialize the user for the session
 passport.serializeUser(function(user, done) {
+	console.log("serializing");
     done(null, user.username);
 });
 
 // used to deserialize the user
 passport.deserializeUser(function(username, done) {
+	console.log("deserializing");
     done(null, username);
 });
 
-
 passport.use('local-login', new LocalStrategy( function(username, password, done) {
-
 	// Cloudant query
 	db.find({selector:{username:username}}, function(err, result) {
 		if (err) {
 			console.log("Error find:" + err);
 			return done(null, false, { message: "There was an error connecting to the database" } );
-		}
-		if (result.docs.length === 0) {
+		} else if (result.docs.length === 0) {
 			console.log("Username not found");
 			return done(null, false, { message: "Username not found" } );
 		}
@@ -42,6 +43,7 @@ passport.use('local-login', new LocalStrategy( function(username, password, done
 
 			if (res === true) {
 				console.log("Password matches");
+				console.log(done);
 				return done(null, user);
 			} else {
 				console.log("Incorrect password");
@@ -65,7 +67,7 @@ passport.use('local-signup', new LocalStrategy({passReqToCallback:true}, functio
 
 		// create a new user
 		bcrypt.hash(password, 10, function(err, hash) {
-			var user = {
+			var user = { // TODO: make a schema/validator for user
 				username: username,
 				password: hash,
 				role: (body.role || "user").toLowerCase(), // admin or user
@@ -85,3 +87,9 @@ passport.use('local-signup', new LocalStrategy({passReqToCallback:true}, functio
 		});
 	});
 }));
+
+
+
+
+
+}

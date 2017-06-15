@@ -52,20 +52,4 @@ function initDBConnection() {
 
 initDBConnection();
 
-
-//       cloudant.db.create(config.dbCredentials.dbName, function (err, res) {
-//       	if (err) { console.log( err.message); }
-//        	else {
-//          		var obj = { // need to check if missing params
-		// 			"_id": "asdf",
-		// 			"username": "asdf",
-		// 			"email": "asdf@asdf.asdf",
-		// 			"password": "asdf",
-		// 			"admin": true,
-		// 			"timecreated": new Date().toUTCString()
-		// 		};
-		// 		db.insert(obj);
-		// 	}
-		// });
-
 module.exports = db;
