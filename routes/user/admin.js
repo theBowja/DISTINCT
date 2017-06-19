@@ -1,13 +1,15 @@
 var userAdmin = require('express').Router();
 var db = require('../../database');
 
+var passport = require('passport');
+
 // middleware
 // user must be admin
 userAdmin.use(function(req,res,next) {
-	if(!req.session.admin) // TODO: change to check if admin within database
-		res.redirect('/dashboard');
-	else
+	if (req.user.role == "admin")
 		next();
+	else
+		res.redirect('/dashboard');
 });
 
 userAdmin.get('/list', function(req,res) {
@@ -30,50 +32,24 @@ userAdmin.get('/register', function(req, res) {
 	res.render('register');
 });
 
-userAdmin.post('/register', function (req, res) {
+userAdmin.post('/register', function (req, res, next) {
 	console.log("POST request for /register");
 
-	usertaken( req.body.username, function(err, message) {
-		if( err) {
-			res.status(err).send(message);
-		} else {
-			var obj = { //need to check if missing params
-				"_id": req.body.username,
-				"username": req.body.username,
-				"email": req.body.email,
-				"password": req.body.password,
-				"admin": false,
-				"timecreated": new Date().toUTCString()
-			};
-
-			db.insert(obj, function(err, body){
-				if(err) {
-					res.status(500).send("cannot insert document into database"); // will need an error handler
-				} else {
-					console.log(req.body.username + ' account created');
-					res.status(200).send(req.body.username + ' has been created<a href="login">Login</a>');
-				}
-			});	
+	passport.authenticate('local-signup', function(err, user, info) {
+		if (err) { return next(err); }
+		if (!user) {
+			if (info.message === "Username already exists") {
+				// pass in options that repopulate the form
+				return res.render('register', { username: req.body.username, email: req.body.email, role: req.body.role} );
+			}
+			return res.redirect('/login');
 		}
-
-	});
+		// successful account creation
+		return res.send("successful account creation");
+		//return res.redirect("/dashboard");
+	})(req, res, next);
 
 });
 
-function usertaken( user, callback) {
-	db.list(function(err, data) { //list ids of documents in db
-  		if (err)
-  			callback(500, "cannot list documents in database");
-  		else{
-      		db.get(user,function(err,body){ //get the document
-      			if(err)
-      				callback(null);
-      			else
-      				callback(401,"username already taken");
-      		});
-    	}
-  	
-	});
-}
 
 module.exports = userAdmin; 

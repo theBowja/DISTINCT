@@ -5,62 +5,48 @@ var upload = multer({ dest: 'public/uploads/' });
 var fs = require('fs');
 var db = require('../../database');
 
-var userAdmin = require('./admin');
 
 
 // middleware
-// user must be logged in
+// requires that user must be logged in
+// in order to access the paths below
 user.use(function(req,res,next) {
-	console.log('checking cookie');
-	// passport restores session data in req.user
-
 	if (req.isAuthenticated()) {
-		console.log('next');
 		next();
 	} else {
-		console.log('not logged in');
-		//next();
 		res.redirect('/login');
 	}
-
-
-	//if (!req.user) {
-	// 	console.log('not logged in')
-	// 	res.redirect('/login');
-	// } else {
-	// 	console.log('next');
-	// 	next();
-	// }
 });
 
-//user.use('/', userAdmin);
+var userAdmin = require('./admin');
+user.use('/', userAdmin);
 
 user.get('/', function(req,res) {
-	console.log("GET request for /user homepage");
+	console.log("GET request for /u/ homepage");
 	res.redirect('dashboard');
 });
 
 // user/dashboard
 user.get('/dashboard', function(req, res) {
-	console.log("GET request for /user/dashboard");
-	if( req.session.admin)
+	console.log("GET request for /u/dashboard");
+	if( req.user.role === "admin")
 		res.render('adminboard');
 	else
-		res.send("Dashboard here for non-admins");
+	 	res.send("Dashboard here for non-admins");
 });
 
 user.get('/profile', function(req, res) {
-	console.log("GET request for /user/profile");
+	console.log("GET request for /u/profile");
 	res.send('PROFILE PAGE HERE LMAOOOOOOO');
 });
 
 user.get('/attachmentupload', function(req, res) {
-	console.log("GET request for /user/upload");
+	console.log("GET request for /u/upload");
 	res.render('fileupload');
 });
 
 user.post('/attachmentupload', upload.single('fileToUpload'), function(req, res) {
-	console.log("PUT request for /user/upload");
+	console.log("PUT request for /u/upload");
 
 	console.log("Upload File Invoked..");
 	// TODO: makes sure file name is unique
@@ -90,10 +76,13 @@ user.post('/attachmentupload', upload.single('fileToUpload'), function(req, res)
 
 user.get('/logout', function(req, res) {
 	console.log("GET request for /logout");
-	req.session.destroy(function(err) {
-		if(err) console.log("LOGOUT error");
-		res.redirect('/login');
-	});
+	req.logout();
+	res.redirect('/login');
+
+	// req.session.destroy(function(err) {
+	// 	if(err) console.log("LOGOUT error");
+	// 	res.redirect('/login');
+	// });
 });
 
 module.exports = user;

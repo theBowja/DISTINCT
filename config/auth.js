@@ -17,14 +17,22 @@ passport.serializeUser(function(user, done) {
 // used to deserialize the user
 passport.deserializeUser(function(username, done) {
 	console.log("deserializing");
-    done(null, username);
+	console.log("DB QUERY");
+	db.find({selector:{username:username}}, function(err, result) {
+		if (err) { console.log("erroring in database finding"); }
+
+		var user = result.docs[0];
+		return done(null, { username: username, role: user.role} );
+	});
+
+    //return done(null, username);
 });
 
 passport.use('local-login', new LocalStrategy( function(username, password, done) {
 	// Cloudant query
 	db.find({selector:{username:username}}, function(err, result) {
 		if (err) {
-			console.log("Error find:" + err);
+			console.log(""+ err);
 			return done(null, false, { message: "There was an error connecting to the database" } );
 		} else if (result.docs.length === 0) {
 			console.log("Username not found");
@@ -41,7 +49,6 @@ passport.use('local-login', new LocalStrategy( function(username, password, done
 
 			if (res === true) {
 				console.log("Password matches");
-				console.log(done);
 				return done(null, user);
 			} else {
 				console.log("Incorrect password");
@@ -69,7 +76,7 @@ passport.use('local-signup', new LocalStrategy({passReqToCallback:true}, functio
 				username: username,
 				password: hash,
 				role: (body.role || "user").toLowerCase(), // admin or user
-				email: body.email || "foobar",
+				email: body.email || "no@email",
 				timeCreated: new Date().toUTCString()
 			};
 

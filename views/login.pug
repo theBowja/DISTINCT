@@ -2,7 +2,7 @@ html(lang='en')
   head
     meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
     title login
-    link(rel='stylesheet', href='/bootstrap.min.css')
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
     link(rel='stylesheet', href='/style/main.css')
   body
     .login-container
@@ -12,11 +12,11 @@ html(lang='en')
         .form-group
           label.sr-only(for='usr') Username
           |  
-          input#usr.form-control(type='text', name='username', placeholder='Username', required='')
+          input#usr.form-control(type='text', name='username', placeholder='Username', required)
         .form-group
           label.sr-only(for='pwd') Password
           |  
-          input#pwd.form-control(type='password', name='password', placeholder='Password', required='')
+          input#pwd.form-control(type='password', name='password', placeholder='Password', required)
         |  
         button.btn.btn-primary(type='submit') Sign in
         //a.tregist(href='register') Create new account
