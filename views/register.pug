@@ -6,15 +6,16 @@ html(lang='en')
     link(rel='stylesheet', href='/style/main.css')
     script(src='https://code.jquery.com/jquery-3.2.1.min.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.11.9/validator.min.js')
-  body
+  body.centerpls
     .login-container
       form(method='post', data-toggle='validator')
         h2 Register a new user!
         h3 some company name
         .form-group
           label.sr-only(for='usr') Username
-          input#usr.form-control(type='text', name='username', placeholder='Username', required, value=username)
-          .help-block.with-errors
+          input#usr.form-control(type='text', name='username', placeholder='Username', data-taken=taken, required, value=username)
+          if taken
+            .help-block= taken + " already exists"
         .form-group
           label.sr-only(for='eml') Email
           input#eml.form-control(type='email', name='email', placeholder='Email', required, value=email)
@@ -34,4 +35,7 @@ html(lang='en')
           .help-block Choose role
         |  
         button.btn.btn-primary(type='submit') Create new account
-script document.getElementById("rol").value = "#{role}";
+script.
+  if ("#{role}") {
+    document.getElementById("rol").value = "#{role}";
+  }

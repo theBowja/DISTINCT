@@ -14,8 +14,6 @@ routes.get('/', function(req, res) {
 });
 
 routes.get('/login', function(req, res) {
-	console.log("GET request for /login");
-	//res.render('register', { username: "hello", email: "email", role: "admi"} );
 	res.render('login');
 });
 

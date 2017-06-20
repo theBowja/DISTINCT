@@ -6,7 +6,6 @@ var fs = require('fs');
 var db = require('../../database');
 
 
-
 // middleware
 // requires that user must be logged in
 // in order to access the paths below
@@ -18,9 +17,6 @@ user.use(function(req,res,next) {
 	}
 });
 
-var userAdmin = require('./admin');
-user.use('/', userAdmin);
-
 user.get('/', function(req,res) {
 	console.log("GET request for /u/ homepage");
 	res.redirect('dashboard');
@@ -28,24 +24,40 @@ user.get('/', function(req,res) {
 
 // user/dashboard
 user.get('/dashboard', function(req, res) {
-	console.log("GET request for /u/dashboard");
-	if( req.user.role === "admin")
-		res.render('adminboard');
-	else
-	 	res.send("Dashboard here for non-admins");
+	console.log("DB QUERY - dashboard");
+	db.find({selector:{username:req.user}}, function(err, result) {
+		if (err) { console.log("erroring in database finding"); }
+
+		var user = result.docs[0];
+		if (user && user.role === "admin")
+			return res.render('adminboard');
+		else
+	 		return res.send("Dashboard here for non-admins");
+	});
 });
 
+// user.get('/search', function(req, res) {
+// 	console.log("DB QUERY - search");
+// 	db.find({selector:{username:req.query.username}}, function(err, result) {
+// 		if (result.docs.length === 0) {
+// 			return res.sendStatus(200);
+// 		} else {
+// 			res.writeHead(400, "Username already exists");
+// 			return res.send();
+// 			//return res.sendStatus(400);
+// 		}
+// 	});
+// });
+
 user.get('/profile', function(req, res) {
-	console.log("GET request for /u/profile");
 	res.send('PROFILE PAGE HERE LMAOOOOOOO');
 });
 
-user.get('/attachmentupload', function(req, res) {
-	console.log("GET request for /u/upload");
+user.get('/upload', function(req, res) {
 	res.render('fileupload');
 });
 
-user.post('/attachmentupload', upload.single('fileToUpload'), function(req, res) {
+user.post('/upload', upload.single('fileToUpload'), function(req, res) {
 	console.log("PUT request for /u/upload");
 
 	console.log("Upload File Invoked..");
@@ -76,6 +88,7 @@ user.post('/attachmentupload', upload.single('fileToUpload'), function(req, res)
 
 user.get('/logout', function(req, res) {
 	console.log("GET request for /logout");
+
 	req.logout();
 	res.redirect('/login');
 
@@ -84,5 +97,11 @@ user.get('/logout', function(req, res) {
 	// 	res.redirect('/login');
 	// });
 });
+
+// middleware definition applies only to the routes that comes after it.
+// putting this at the bottom prevents the middleware in userAdmin
+//   from being called for the above paths
+var userAdmin = require('./admin');
+user.use('/', userAdmin);
 
 module.exports = user;

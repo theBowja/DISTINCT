@@ -1,7 +1,25 @@
 html(lang='en')
   head
     meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
-    title register
-    link(rel='stylesheet', href='/bootstrap.min.css')
-    link(rel='stylesheet', href='/main.css')
+    title list
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+    link(rel='stylesheet', href='/style/main.css')
+    script(src='/scripts/sortTable.js')
   body
+    a(href='dashboard') Dashboard
+    br
+    br
+    table#myTable2(border='1')
+      thead
+        tr
+          th#username(onclick='sortTable(0)') Username
+          th#email(onclick='sortTable(1)') Email
+          th#role(onclick='sortTable(2)') Role
+          th#date(onclick='sortTable(3)') Time created (UTC)
+      tbody
+        each user in data
+          tr
+            td= user.username
+            td= user.email
+            td= user.role
+            td= user.timeCreated

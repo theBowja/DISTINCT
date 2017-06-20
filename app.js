@@ -45,6 +45,21 @@ app.get('/session', function(req,res) {
 	res.send(req.session);
 });
 
+app.get('/test', function(req,res) {
+	db.list({include_docs: true},function(err, body) {
+		var myarr = body.rows.map(function(ele) {
+			return {
+				username: ele.doc.username,
+				email: ele.doc.email,
+				role: ele.doc.role,
+				timeCreated: ele.doc.timeCreated
+			};
+		});
+		res.render('userlist', {data:myarr});
+	});
+
+});
+
 app.get('/dbinit', function (req, res) {
 	console.log("GET request for /dbinit");
 

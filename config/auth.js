@@ -17,19 +17,20 @@ passport.serializeUser(function(user, done) {
 // used to deserialize the user
 passport.deserializeUser(function(username, done) {
 	console.log("deserializing");
-	console.log("DB QUERY");
-	db.find({selector:{username:username}}, function(err, result) {
-		if (err) { console.log("erroring in database finding"); }
+	// console.log("DB QUERY");
+	// db.find({selector:{username:username}}, function(err, result) {
+	// 	if (err) { console.log("erroring in database finding"); }
 
-		var user = result.docs[0];
-		return done(null, { username: username, role: user.role} );
-	});
+	// 	var user = result.docs[0];
+	// 	return done(null, { username: username, role: user.role} );
+	// });
 
-    //return done(null, username);
+    return done(null, username);
 });
 
 passport.use('local-login', new LocalStrategy( function(username, password, done) {
 	// Cloudant query
+	console.log("DB QUERY - login");
 	db.find({selector:{username:username}}, function(err, result) {
 		if (err) {
 			console.log(""+ err);
@@ -61,6 +62,7 @@ passport.use('local-login', new LocalStrategy( function(username, password, done
 passport.use('local-signup', new LocalStrategy({passReqToCallback:true}, function(req, username, password, done) {
 	var body = req.body;
 
+	console.log("DB QUERY - signup");
 	db.find({selector:{username:username}}, function(err, result) {
 		if (err) {
 			console.log("Error find:" + err);
@@ -77,7 +79,7 @@ passport.use('local-signup', new LocalStrategy({passReqToCallback:true}, functio
 				password: hash,
 				role: (body.role || "user").toLowerCase(), // admin or user
 				email: body.email || "no@email",
-				timeCreated: new Date().toUTCString()
+				timeCreated: new Date().toISOString()
 			};
 
 			db.insert(user, function(err, body) {

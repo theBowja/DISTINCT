@@ -1,4 +1,4 @@
-body {
+body.centerpls {
 	/* this with "margin: auto" aligns the
 	container both horizonatally and vertically*/
 	display: flex; 
