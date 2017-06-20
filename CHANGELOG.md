@@ -14,9 +14,15 @@ Tags are:
 
 ## [Unreleased]
 
+## [0.0.15] - 2017-06-20
+### Fixed
+- login system
+- /register
+- /list
+
 ## [0.0.14] - 2017-06-13
 ### Added
-- implemented passport.js using bcrypt for password auth
+- implemented passport.js using bcrypt for password authentication
 
 ## [0.0.13] - 2017-06-08
 ### Added
