@@ -5,7 +5,7 @@ function sortTable(n) {
 	table = document.getElementById("myTable2");
 	isDate = false;
 	// detects if we are sorting dates, of which we'll have to give special considerations
-	if (table.getElementsByTagName("TH")[n].id == "date") {
+	if (table.getElementsByTagName("TH")[n].id == "datecreated" || table.getElementsByTagName("TH")[n].id == "lastlogin") {
 		isDate = true;
 	}
 	switching = true;

@@ -1,14 +1,17 @@
 var user = require('express').Router();
-var multer = require('multer'); // middleware for handling multipart/form-data (which is used for uploading files)
+
+// middleware for handling multipart/form-data (which is used for uploading files)
+var multer = require('multer');
+// middleware for reaping uploaded files saved to disk by multer. removes upon response end or close
+var autoReap = require('multer-autoreap');
 var upload = multer({ dest: 'public/uploads/' });
 
 var fs = require('fs');
 var db = require('../../database');
 
-
-// middleware
-// requires that user must be logged in
-// in order to access the paths below
+// Middleware
+// Requires that user must be logged in (authenticated)
+//   in order to access the paths below
 user.use(function(req,res,next) {
 	if (req.isAuthenticated()) {
 		next();
@@ -22,17 +25,20 @@ user.get('/', function(req,res) {
 	res.redirect('dashboard');
 });
 
-// user/dashboard
+// Queries the database for the user's role and passes it as an option
+//   to the pug template. The pug file will determine what will be displayed
+//   based on the role.
+// Admins will have more options available to them on the dashboard.
 user.get('/dashboard', function(req, res) {
-	console.log("DB QUERY - dashboard");
+	console.log("DB QUERY - dashboard role");
 	db.find({selector:{username:req.user}}, function(err, result) {
 		if (err) { console.log("erroring in database finding"); }
 
 		var user = result.docs[0];
-		if (user && user.role === "admin")
-			return res.render('adminboard');
+		if (user)
+			return res.render('dashboard', { role: user.role} );
 		else
-	 		return res.send("Dashboard here for non-admins");
+			return res.send("error displaying dashboard");
 	});
 });
 
@@ -57,29 +63,33 @@ user.get('/upload', function(req, res) {
 	res.render('fileupload');
 });
 
-user.post('/upload', upload.single('fileToUpload'), function(req, res) {
-	console.log("PUT request for /u/upload");
+user.post('/upload', upload.single('fileToUpload'), autoReap, function(req, res) {
+	console.log("PUT request for upload");
+
 
 	console.log("Upload File Invoked..");
 	// TODO: makes sure file name is unique
-	//console.log(req.body); // values from the form
-	//console.log(req.file); // this is it.
-	//console.log(req.files);
+	console.log(req.body); // values from the form
+	console.log(req.file); // this is it.
 	// saves to disk first before uploading as attachment to database
 	// the following is untested
-	db.get(req.session.user, function(err, existingdoc) {	
-	// check err. if doesn't exist, then throw tantrum	
 
-		fs.readFile(req.file.path, function(err, data) {
-			// check err
-			db.attachment.insert( req.session.user, req.file.originalname, data, req.file.mimetype, {rev: existingdoc._rev}, function(err, document) {
-				// check err
-				console.log('Attachment saved succesfully... hopefully');
-				// db.get(document.id, function(err, doc) {
-			});
+	// db.get(req.session.user, function(err, existingdoc) {	
+	// // check err. if doesn't exist, then throw tantrum	
 
-		});
+	// 	fs.readFile(req.file.path, function(err, data) {
+	// 		// check err
+	// 		db.attachment.insert( req.session.user, req.file.originalname, data, req.file.mimetype, {rev: existingdoc._rev}, function(err, document) {
+	// 			// check err
+	// 			console.log('Attachment saved succesfully... hopefully');
+	// 			// db.get(document.id, function(err, doc) {
+	// 		});
 
+	// 	});
+
+	// });
+	res.on('autoreap', function(reapedFile) {
+		console.log("reaped file");
 	});
 
 	

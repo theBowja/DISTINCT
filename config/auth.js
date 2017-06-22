@@ -28,6 +28,9 @@ passport.deserializeUser(function(username, done) {
     return done(null, username);
 });
 
+// First queries to see if username exists,
+// then uses bcrypt to compare hashed passwords,
+// finally updates lastLogin before returning success.
 passport.use('local-login', new LocalStrategy( function(username, password, done) {
 	// Cloudant query
 	console.log("DB QUERY - login");
@@ -50,6 +53,14 @@ passport.use('local-login', new LocalStrategy( function(username, password, done
 
 			if (res === true) {
 				console.log("Password matches");
+				console.log("DB WRITE - last login");
+				user.lastLogin = new Date().toISOString();
+				db.insert(user, function(err, body) {
+					if (err) {
+						console.log("error in write");
+						return done(null, false, {message: "Database error"} );
+					}
+				});
 				return done(null, user);
 			} else {
 				console.log("Incorrect password");
@@ -79,9 +90,11 @@ passport.use('local-signup', new LocalStrategy({passReqToCallback:true}, functio
 				password: hash,
 				role: (body.role || "user").toLowerCase(), // admin or user
 				email: body.email || "no@email",
-				timeCreated: new Date().toISOString()
+				timeCreated: new Date().toISOString(),
+				lastLogin: ''
 			};
 
+			console.log("DB WRITE - signup");
 			db.insert(user, function(err, body) {
 				if (err) {
 					console.log("Cannot insert document into database");

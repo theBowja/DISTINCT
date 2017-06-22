@@ -15,7 +15,8 @@ html(lang='en')
           th#username(onclick='sortTable(0)') Username
           th#email(onclick='sortTable(1)') Email
           th#role(onclick='sortTable(2)') Role
-          th#date(onclick='sortTable(3)') Time created (UTC)
+          th#datecreated(onclick='sortTable(3)') Time created (UTC)
+          th#lastlogin(onclick='sortTable(4)') Last login (UTC)
       tbody
         each user in data
           tr
@@ -23,3 +24,4 @@ html(lang='en')
             td= user.email
             td= user.role
             td= user.timeCreated
+            td= user.lastLogin

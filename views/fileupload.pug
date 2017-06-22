@@ -1,11 +1,14 @@
 html(lang='en')
   head
     meta(http-equiv='Content-Type', content='text/html; charset=utf-8')
-    title upload pls
-    link(rel='stylesheet', href='/bootstrap.min.css')
-    link(rel='stylesheet', href='/main.css')
+    title upload
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+    // link(rel='stylesheet', href='style/main.css')
   body
-    form(action='attachmentupload', method='post', enctype='multipart/form-data')
+    a(href='dashboard') Dashboard
+      br
+      br
+    form(method='post', enctype='multipart/form-data')
       | Select something to upload: 
       input#fileToUpload(type='file', name='fileToUpload')
       |  
