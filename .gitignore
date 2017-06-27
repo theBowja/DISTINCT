@@ -18,6 +18,7 @@ $RECYCLE.BIN/
 *.lnk
 node_modules
 vcap-local.json
+public/uploads
 
 # =========================
 # Operating System Files

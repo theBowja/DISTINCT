@@ -1,0 +1,47 @@
+html(lang='en')
+  head
+    meta(http-equiv='Content-Type', content='text/html; charset=utf-8')
+    title editor
+    script(src='https://d3js.org/d3.v4.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/ajv/5.0.0/ajv.min.js')
+    script(src='/scripts/svgeditor.js')
+    script(src='/scripts/topologySchema.js')
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+    link(rel='stylesheet', href='/style/svgeditor.css')
+
+  body(onload=(data)?'SVGGRAPH=SVGGRAPH();loadfile()':'SVGGRAPH=SVGGRAPH();')
+    .left
+      button(type='button' onclick='randomgraph()') big
+      button#importbtn(type='button' onclick='SVGGRAPH.svg_import();') import
+      button(type='button' onclick='SVGGRAPH.svg_clear()') clear
+      input(type='file')
+      button(type='button' onclick='SVGGRAPH.svg_export();') export
+      textarea
+    .right
+      #svgfocus(tabindex='0' style='display:inline-block')
+        svg(style='border: 1px solid black;' viewBox='-20 -20 50 50')
+
+script.
+  function randomgraph() {
+    var n = 1000,
+      rnodes = d3.range(n).map(function (d) {
+        return { name: d.toString(), shape: "circle", color: "black"};
+      }),
+      rlinks = d3.range(n).map(function (d) {
+        return { source: d.toString(), target: ((d + 8) % n).toString() };
+        //return { source: d.toString(), target: (Math.floor((Math.random() * n))).toString() };
+        //return { source: d.toString(), target: "1" };
+      }),
+      obj = JSON.stringify({ nodes: rnodes, links: rlinks });
+    d3.select("textarea").property("value", obj);
+  }
+
+if data
+  script.
+    function loadfile() {
+      var data = !{JSON.stringify(data).replace(/<\//g, "<\\/")};
+      d3.select("textarea").property("value", data);
+      SVGGRAPH.svg_import();
+    }
+
+

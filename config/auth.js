@@ -7,25 +7,30 @@ var db = require('../database');
 
 var cloudant = require('cloudant');
 
-
-/// used to serialize the user for the session
+// used to serialize the user for the session
 passport.serializeUser(function(user, done) {
 	console.log("serializing");
-    done(null, user.username);
+    done(null, user._id);
 });
 
 // used to deserialize the user
-passport.deserializeUser(function(username, done) {
-	console.log("deserializing");
-	// console.log("DB QUERY");
-	// db.find({selector:{username:username}}, function(err, result) {
-	// 	if (err) { console.log("erroring in database finding"); }
+// uses the user._id used above to perform a database lookup.
+// This is as opposed to using the user.username to perform a database query.
+//   I have higher throughput on lookups anyways.
+// The user object is stored in req.user
+passport.deserializeUser(function(docID, done) {
+	console.log("DB LOOKUP - deserializing");
+	db.get(docID, function(err, body) {
+	 	if (err) { console.log("erroring in database lookup"); }
 
-	// 	var user = result.docs[0];
-	// 	return done(null, { username: username, role: user.role} );
-	// });
-
-    return done(null, username);
+		var user = {
+			_id: body._id,
+			_rev: body._rev,
+			username: body.username,
+			role: body.role
+		};
+		return done(null, user);
+	});
 });
 
 // First queries to see if username exists,

@@ -22,7 +22,6 @@ require('./config/auth.js'); // initialize
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // populates object with key-value pairs. value can be string or array when extended: false, or any type when extended: true.
-//app.use(multer());
 app.use(session({
 	secret: 'bunny buddy',
 	resave: true,
@@ -30,7 +29,7 @@ app.use(session({
 	//store: , // default is MemoryStore instance which is not for production
 	//rolling: true, // set cookie on every response. expiration set to original maxAge
 	cookie: {
-		maxAge: 60000 // 60000 is one minute
+		maxAge: 100 * 60 * 1000 // 5 minute
 	}
 }));
 app.use(passport.initialize());

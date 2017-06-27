@@ -33,7 +33,7 @@
 					//return { source: d.toString(), target: (Math.floor((Math.random() * n))).toString() };
 					//return { source: d.toString(), target: "1" };
 
-				});
+				}),
 				obj = JSON.stringify({ nodes: rnodes, links: rlinks });
 			d3.select("textarea").property("value", obj);
 		}

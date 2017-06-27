@@ -6,16 +6,10 @@ var passport = require('passport');
 // middleware
 // user must be admin
 userAdmin.use(function(req,res,next) {
-	console.log("DB QUERY - admin restricted");
-	db.find({selector:{username:req.user}}, function(err, result) {
-		if (err) { console.log("erroring in database finding"); }
-
-		var user = result.docs[0];
-		if (user && user.role === "admin")
-			next();
-		else
-			res.redirect('dashboard');
-	});
+	if (req.user.role === "admin")
+		next();
+	else
+		res.redirect('dashboard');
 });
 
 // Outputs a table of users

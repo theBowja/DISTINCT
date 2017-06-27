@@ -25,21 +25,11 @@ user.get('/', function(req,res) {
 	res.redirect('dashboard');
 });
 
-// Queries the database for the user's role and passes it as an option
-//   to the pug template. The pug file will determine what will be displayed
-//   based on the role.
+// Passes the role as an option to the pug template.
+//   The pug file will determine what will be displayed based on the role.
 // Admins will have more options available to them on the dashboard.
 user.get('/dashboard', function(req, res) {
-	console.log("DB QUERY - dashboard role");
-	db.find({selector:{username:req.user}}, function(err, result) {
-		if (err) { console.log("erroring in database finding"); }
-
-		var user = result.docs[0];
-		if (user)
-			return res.render('dashboard', { role: user.role} );
-		else
-			return res.send("error displaying dashboard");
-	});
+	res.render('dashboard', { role: req.user.role} );
 });
 
 // user.get('/search', function(req, res) {
@@ -59,41 +49,82 @@ user.get('/profile', function(req, res) {
 	res.send('PROFILE PAGE HERE LMAOOOOOOO');
 });
 
-user.get('/upload', function(req, res) {
-	res.render('fileupload');
-});
+user.get('/organizer', function(req, res) {
+	console.log("DB LOOKUP - attachments");
+	db.get(req.user._id, function(err, body) {
+	 	if (err) { console.log("erroring in database lookup"); }
 
-user.post('/upload', upload.single('fileToUpload'), autoReap, function(req, res) {
-	console.log("PUT request for upload");
-
-
-	console.log("Upload File Invoked..");
-	// TODO: makes sure file name is unique
-	console.log(req.body); // values from the form
-	console.log(req.file); // this is it.
-	// saves to disk first before uploading as attachment to database
-	// the following is untested
-
-	// db.get(req.session.user, function(err, existingdoc) {	
-	// // check err. if doesn't exist, then throw tantrum	
-
-	// 	fs.readFile(req.file.path, function(err, data) {
-	// 		// check err
-	// 		db.attachment.insert( req.session.user, req.file.originalname, data, req.file.mimetype, {rev: existingdoc._rev}, function(err, document) {
-	// 			// check err
-	// 			console.log('Attachment saved succesfully... hopefully');
-	// 			// db.get(document.id, function(err, doc) {
-	// 		});
-
-	// 	});
-
-	// });
-	res.on('autoreap', function(reapedFile) {
-		console.log("reaped file");
+		res.render('fileorganizer', { attachments: body._attachments} );
 	});
 
-	
-	res.render('fileupload');
+});
+
+// multer puts the file into req.files
+user.post('/organizer', upload.single('fileToUpload'), autoReap, function(req, res) {
+	//res.on('autoreap', function(reapedFile) { console.log("reaped file"); });
+
+	// TODO: makes sure file name is unique
+
+	// multer saves the file temporarily to disk first.
+	// we must read this file in order to upload it as an attachment to the user's document
+	fs.readFile(req.file.path, function(err, data) {
+		if (err) {
+			console.log("error reading file for upload");
+			return res.send("error: read file");
+		}
+
+		console.log("DB WRITE - insert attachment");
+		db.attachment.insert(req.user._id, req.file.originalname, data, req.file.mimetype, {rev: req.user._rev}, function(err, body) {
+			if (err) {
+				console.log("database attachment insert error");
+				return res.send("an error has occured");
+			}
+			return res.send(req.file.originalname + " saved successfully");
+		});
+	});
+});
+
+user.get('/organizer/:fileName', function(req, res) {
+	console.log("DB LOOKUP - " + req.params.fileName);
+	db.attachment.get(req.user._id, req.params.fileName, function(err, body) {
+		if (err) {
+			console.log("file probably not found");
+			return res.send("Error: file probably not found");
+		}
+
+		res.send(""+body);
+		//return res.render('viewfile', { contents: body} );
+	});
+});
+
+// TODO: fix unnecessary lookup. The script in the pug file refreshes the page so you have
+//       LOOKUP - deserializing - deserializing - attachments
+//       can probably remove one 'deserializing' if I send updated attachments from here
+user.delete('/organizer/:fileName', function(req, res) {
+	console.log("DB WRITE - destroy attachment");
+	db.attachment.destroy(req.user._id, req.params.fileName, {rev: req.user._rev}, function(err, body) {
+		if (err) {
+			console.log("Error: in destroying attachment");
+			return res.sendStatus(500);
+		}
+		return res.sendStatus(200); // equivalent to res.status(200).send('OK')
+	});
+});
+
+user.get('/editor', function(req, res) {
+	res.render('editor');
+});
+
+user.get('/editor/:fileName', function(req, res) {
+	console.log("DB LOOKUP - " + req.params.fileName);
+	db.attachment.get(req.user._id, req.params.fileName, function(err, body) {
+		if (err) {
+			console.log("file probably not found");
+			return res.render('editor');
+		}
+
+		return res.render('editor', { data: body.toString()} );
+	});
 });
 
 user.get('/logout', function(req, res) {
