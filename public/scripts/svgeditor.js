@@ -19,8 +19,8 @@ var SVGGRAPH = function() {
 		});
 
 	var svg = d3.select("svg");
-	var width = +svg.attr("width");
-	var height = +svg.attr("height");
+	var width = parseFloat(svg.style("width"), 10);
+	var height = parseFloat(svg.style("height"), 10);
 
 	// for zooming
 	var zoom = d3.zoom()
@@ -35,6 +35,7 @@ var SVGGRAPH = function() {
 		.call(zoom)
 		.on("dblclick.zoom", null)
 		.on("dblclick", function() {
+			console.log("help")
 			if (!control.canCreate) return;
 
 			var point = d3.mouse(this);

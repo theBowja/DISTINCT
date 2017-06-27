@@ -5,13 +5,17 @@ html(lang='en')
     script(src='https://d3js.org/d3.v4.min.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/ajv/5.0.0/ajv.min.js')
     script(src='/scripts/svgeditor.js')
+    script(src='/scripts/svgeditor_optionspanel.js')
     script(src='/scripts/topologySchema.js')
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
     link(rel='stylesheet', href='/style/svgeditor.css')
 
   body(onload=(data)?'SVGGRAPH=SVGGRAPH();loadfile()':'SVGGRAPH=SVGGRAPH();')
     .left
-      button(type='button' onclick='randomgraph()') big
+      a(href='dashboard') Dashboard
+      br
+      br
+      //- button(type='button' onclick='randomgraph()') big
       button#importbtn(type='button' onclick='SVGGRAPH.svg_import();') import
       button(type='button' onclick='SVGGRAPH.svg_clear()') clear
       input(type='file')
@@ -19,9 +23,9 @@ html(lang='en')
       textarea
     .right
       #svgfocus(tabindex='0' style='display:inline-block')
-        svg(style='border: 1px solid black;' viewBox='-20 -20 50 50')
+        svg(width='100%' height='100%' style='border: 1px solid black;')
 
-script.
+//- script.
   function randomgraph() {
     var n = 1000,
       rnodes = d3.range(n).map(function (d) {
