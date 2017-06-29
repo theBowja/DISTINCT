@@ -31,7 +31,7 @@ html(lang='en')
               span.glyphicon.glyphicon-trash
             button.btn.btn-default.btn-sm.custom-button(type='button' title='go to editor' onclick='location.href="editor/'+key+'"')
               span.glyphicon.glyphicon-chevron-right
-            a(href='organizer/'+key)= key
+            a(href='api/file/'+key)= key
             //- span.glyphicon.glyphicon-pencil
               title rename
 
@@ -44,7 +44,7 @@ script.
       //-   location.reload();
       //- }})
       var http = new XMLHttpRequest();
-      var url = "organizer/" + fileName;
+      var url = "api/file/" + fileName;
       http.open("DELETE", url, true);
 
       http.onreadystatechange = function() {//Call a function when the state changes.

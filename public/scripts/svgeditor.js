@@ -35,7 +35,6 @@ var SVGGRAPH = function() {
 		.call(zoom)
 		.on("dblclick.zoom", null)
 		.on("dblclick", function() {
-			console.log("help")
 			if (!control.canCreate) return;
 
 			var point = d3.mouse(this);
@@ -158,14 +157,6 @@ var SVGGRAPH = function() {
 		},
 	};
 
-	// var txtdmp = {"version":"0.0.1","nodes":[{"name":"My phone","color":"black","x":463.7487981990966,"y":277.18663881688013},{"name":"My laptop","color":"black","x":500.2267180379261,"y":332.90985447583705},{"name":"My tablet","color":"black","x":510.5318118655692,"y":277.23885693548266,"fx":null,"fy":null},{"name":"My computer","color":"black","x":520.8680499946377,"y":302.7002134314309},{"name":"My tv","color":"black","x":487.7817741297175,"y":267.73918496475125},{"name":"My router","color":"black","x":486.8239392676516,"y":302.16482283480207,"fx":null,"fy":null},{"name":"The internet","color":"black","x":451.36319453922584,"y":315.7085020093186},{"name":"Someone else's router","color":"green","x":418.6361500337585,"y":324.469949371918}],
-	// "links":[{"source":"My laptop","target":"My router"},{"source":"My laptop","target":"My router"},{"source":"My phone","target":"My router"},{"source":"My computer","target":"My router"},{"source":"My tv","target":"My router"},{"source":"My router","target":"The internet"},{"source":"The internet","target":"Someone else's router"},{"source":"My router","target":"My tablet"}]};
-	// txtdmp = {"version":"0.0.1","nodes":[{"name":"1","shape":"square","color":"black","x":373.47198280933173,"y":304.2330251471679,"fx":null,"fy":null},{"name":"2","shape":"circle","color":"black","x":405.94890466367633,"y":297.03434309760524,"fx":null,"fy":null},{"name":"3","shape":"circle","color":"black","x":442.5840908088773,"y":293.1901564697954,"fx":null,"fy":null},{"name":"4","shape":"circle","color":"black","x":479.2707415850414,"y":292.7256692634419,"fx":null,"fy":null},{"name":"5","shape":"circle","color":"black","x":518.2299523310276,"y":294.90936407878235,"fx":null,"fy":null},{"name":"6","shape":"circle","color":"black","x":556.2646364427482,"y":300.28681086232586,"fx":null,"fy":null},{"name":"7","shape":"circle","color":"black","x":583.8554231282451,"y":316.8585595154867,"fx":null,"fy":null}],
-	// "links":[{"source":"1","target":"2"},{"source":"2","target":"3"},{"source":"3","target":"4"},{"source":"4","target":"5"},{"source":"5","target":"6"},{"source":"6","target":"7"}]};
-
-	// var nodes = txtdmp.nodes;
-	// var links = txtdmp.links;
-
 	var nodes = [];
 	var links = [];
 
@@ -224,7 +215,7 @@ var SVGGRAPH = function() {
 	}
 
 	function updateLinks(links) {
-		link = link.data(links, function(d){return d.source.name + "_" + d.target.name;}); // join
+		link = link.data(links, function(d){return d.source.name + "--" + d.target.name;}); // join
 		link.exit().remove(); // remove
 		link = link.enter().append("line") // append new
 			.on("click", selectLink)
@@ -391,7 +382,6 @@ var SVGGRAPH = function() {
 			.attr("y1", function(d) { return d.source.y; })
 			.attr("x2", function(d) { return d.target.x; })
 			.attr("y2", function(d) { return d.target.y; });
-
 	}
 
 	function dragstarted(d) {
@@ -407,23 +397,18 @@ var SVGGRAPH = function() {
 		if (!control.canPlay) { // if paused
 			d.x = d3.event.x;
 			d.y = d3.event.y;
-			// d.x = d.fx, d.vx = 0;
-			// d.y = d.fy, d.vy = 0;
 			tick(); // TODO: update only affected nodes and links rather than everything
 		}	
-
 	}
 
 	function dragended(d) {
 		if (control.canPlay && !d3.event.active) simulation.alphaTarget(0);
 		d.fx = null;
 		d.fy = null;
-
 	}
 
 	// TODO: organize all functions pertaining to options panel into another file
 	function createNodeOptionsPanel(d) {
-		//console.log(d, d3.select(this).datum());
 		var circleNode = this;
 
 		// Conditions to not open the options panel
@@ -435,11 +420,16 @@ var SVGGRAPH = function() {
 
 		d3.select(circleNode).classed("optionsopen", true);
 
+		//var transform = d3.zoomTransform(d3.select("#background").node());
+	
 		var foreignObject = d3.select("#forms")
 			.append("foreignObject")
 			.attr("class", "panel")
+			//.attr("transform", "scale(0.8,0.8)")
 			.attr("x", d.x)
-			.attr("y", d.y);
+			.attr("y", d.y)
+			// .attr("x", (d.x - transform.x)/transform.k)
+			// .attr("y", (d.y - transform.y)/transform.k);
 			// .attr("width", "100px")
 			// .attr("height", "300px"); // required for firefox because it does not map from css
 		var panel = foreignObject.append("xhtml:div")
@@ -466,36 +456,36 @@ var SVGGRAPH = function() {
 			.attr("class", "panel-body");
 			// .append("div").attr("class", "container");
 
-		var panel_content_form = panel_content.append("form")
+		var form = panel_content.append("form")
 			//.attr("class", "form-horizontal")
-			.on("submit", function() { updateNodeOptionsPanel(this,circleNode); });
+			.on("submit", function() { updateNodeOptionsPanel(panel,d3.select(circleNode)); });
 
-		var panel_content_form_name = panel_content_form.append("div")
+		var form_name = form.append("div")
 			.attr("class", "form-group");
-		var panel_content_form_name_label = panel_content_form_name.append("label")
+		var form_name_label = form_name.append("label")
 			.attr("class", "control-label")
 			//.attr("for", "namename")
 			.text("Name:");
-		var panel_content_form_name_input = panel_content_form_name.append("input")
+		var form_name_input = form_name.append("input")
 			.attr("class", "form-control")
 			.attr("id", "namename")
 			.attr("type", "text")
 			.attr("value", d.name);
 
-		var panel_content_form_color = panel_content_form.append("div")
+		var form_color = form.append("div")
 			.attr("class", "form-group");
-		var panel_content_form_color_label = panel_content_form_color.append("label")
+		var form_color_label = form_color.append("label")
 			.attr("class", "control-label")
 			.text("Color:");
-		var panel_content_form_color_input = panel_content_form_color.append("select")
+		var form_color_input = form_color.append("select")
 			.attr("class", "form-control")
 			.attr("id", "colorcolor");
-		panel_content_form_color_input.append("option").text("black"); // can use d3's .data() with this
-		panel_content_form_color_input.append("option").text("blue");
-		panel_content_form_color_input.append("option").text("green");
-		panel_content_form_color_input.append("option").text("grey");
+		form_color_input.append("option").text("black"); // can use d3's .data() with this
+		form_color_input.append("option").text("blue");
+		form_color_input.append("option").text("green");
+		form_color_input.append("option").text("grey");
 
-		var panel_content_form_submit = panel_content_form.append("button")
+		var form_submit = form.append("button")
 			.attr("class", "btn btn-default")
 			.attr("type", "submit")
 			.text("Save changes");	        	
@@ -510,12 +500,28 @@ var SVGGRAPH = function() {
 		foreignObject.attr("y", +foreignObject.attr("y") + d3.event.dy);
 	}
 
-	function updateNodeOptionsPanel(form,circleNode) {
+	// form and circleNode are selections
+	function updateNodeOptionsPanel(panel, circleNode) {
 		d3.event.preventDefault(); // prevents page from refreshing
-		var form_sel = d3.select(form);
-		console.log(form_sel.select("#namename").property("value"));
-		console.log(d3.select(circleNode).datum());
-		d3.select(circleNode).attr("fill", form_sel.select("#colorcolor").property("value"));
+		var form = panel.select("form");
+		var formdata = {
+			name: form.select("#namename").property("value"),
+			color: form.select("#colorcolor").property("value")
+		};
+		var original = circleNode.datum();
+
+		// NAME
+		if (original.name !== formdata.name) {
+			original.name = formdata.name;
+			circleNode.select("title").text(formdata.name);
+			panel.select(".panel-title").text(formdata.name);
+		}
+		// COLOR
+		if (original.color !== formdata.color) {
+			original.color = formdata.color;
+			circleNode.attr("fill", formdata.color);
+		}
+
 	}
 
 	function closeNodeOptionsPanel(circleNode,foreignObject) {
@@ -525,7 +531,7 @@ var SVGGRAPH = function() {
 
 	function svg_clear() {
 		d3.select("textarea").property("value", JSON.stringify({"nodes":[],"links":[]}));
-		SVGGRAPH.svg_import();
+		//SVGGRAPH.svg_import();
 	}
 
 	function svg_import() {
@@ -582,7 +588,7 @@ var SVGGRAPH = function() {
 		for(var i = 0; i < exportObj.nodes.length; i++) {
 			delete exportObj.nodes[i].vx;
 			delete exportObj.nodes[i].vy;
-			//delete exportObj.nodes[i].index;
+			delete exportObj.nodes[i].index;
 			if (exportObj.nodes[i].fx === null)
 				delete exportObj.nodes[i].fx;
 			if (exportObj.nodes[i].fy === null)

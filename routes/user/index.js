@@ -84,33 +84,6 @@ user.post('/organizer', upload.single('fileToUpload'), autoReap, function(req, r
 	});
 });
 
-user.get('/organizer/:fileName', function(req, res) {
-	console.log("DB LOOKUP - " + req.params.fileName);
-	db.attachment.get(req.user._id, req.params.fileName, function(err, body) {
-		if (err) {
-			console.log("file probably not found");
-			return res.send("Error: file probably not found");
-		}
-
-		res.send(""+body);
-		//return res.render('viewfile', { contents: body} );
-	});
-});
-
-// TODO: fix unnecessary lookup. The script in the pug file refreshes the page so you have
-//       LOOKUP - deserializing - deserializing - attachments
-//       can probably remove one 'deserializing' if I send updated attachments from here
-user.delete('/organizer/:fileName', function(req, res) {
-	console.log("DB WRITE - destroy attachment");
-	db.attachment.destroy(req.user._id, req.params.fileName, {rev: req.user._rev}, function(err, body) {
-		if (err) {
-			console.log("Error: in destroying attachment");
-			return res.sendStatus(500);
-		}
-		return res.sendStatus(200); // equivalent to res.status(200).send('OK')
-	});
-});
-
 user.get('/editor', function(req, res) {
 	res.render('editor');
 });
@@ -123,7 +96,7 @@ user.get('/editor/:fileName', function(req, res) {
 			return res.render('editor');
 		}
 
-		return res.render('editor', { data: body.toString()} );
+		return res.render('editor', { fileName: req.params.fileName, data: body.toString()} );
 	});
 });
 
@@ -138,6 +111,9 @@ user.get('/logout', function(req, res) {
 	// 	res.redirect('/login');
 	// });
 });
+
+var api = require('./api');
+user.use('/api', api);
 
 // middleware definition applies only to the routes that comes after it.
 // putting this at the bottom prevents the middleware in userAdmin
