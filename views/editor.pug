@@ -26,12 +26,12 @@ html(lang='en')
       // I really don't know how to label these
       // also these bootstrap buttons look kinda out of place
       .btn-group.btn-group-xs#withDropdown
-        button.btn.btn-default(type='button' onclick='listAttachments()' data-toggle='dropdown') import
+        button.btn.btn-default(type='button' onclick='listAttachments()' data-toggle='dropdown') load
         ul.dropdown-menu(role='menu')
         button.btn.btn-default(type='button' onclick='') save
       input(type='file')
       .btn-group.btn-group-sm
-        button.btn.btn-default(type='button' onclick='SVGGRAPH.svg_import();') load
+        button.btn.btn-default(type='button' onclick='SVGGRAPH.svg_import();') import
         button.btn.btn-default(type='button' onclick='SVGGRAPH.svg_clear()') clear
         button.btn.btn-default(type='button' onclick='SVGGRAPH.svg_export();') export
       textarea
@@ -49,10 +49,10 @@ html(lang='en')
           .modal-body
             h4 <strong>sidebar</strong>
             ul
-              li <strong>import:</strong> imports a file from the list of your attachments
+              li <strong>load:</strong> loads a file from the list of your attachments
               li <strong>save:</strong> saves the JSON in the textarea as an attachment
               li <strong>choose file:</strong> directly upload a file to the textarea
-              li <strong>load:</strong> loads the JSON in the textarea to the graph
+              li <strong>import:</strong> imports the JSON in the textarea to the graph
               li <strong>clear:</strong> puts the JSON of an empty graph into the textarea
               li <strong>export:</strong> outputs the JSON of the graph into the textarea
               li <strong>textarea:</strong> the middleman
