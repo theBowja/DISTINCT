@@ -3,18 +3,19 @@ html(lang='en')
     meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
     title dashboard
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
-    //link(rel='stylesheet', href='/style/main.css')
+    link(rel='stylesheet', href='/style/main.css')
   body
-    h2= 'You are ' + role
-    if (role === 'admin')
-      a(href='register') Register a new user!
+    .left
+      h2= 'You are ' + role
+      if (role === 'admin')
+        a(href='register') Register a new user!
+        br
+        a(href='list') List all registered users
+        br
+      a(href='organizer') File organizer
       br
-      a(href='list') List all registered users
+      a(href='editor') Editor
       br
-    a(href='organizer') File organizer
-    br
-    a(href='editor') Editor
-    br
-    br
+      br
 
-    a(href='logout') Logout
+      a(href='logout') Logout

@@ -4,6 +4,15 @@ body.centerpls {
 	display: flex; 
 }
 
+.left {
+	width: 20%;
+	float: left;
+	padding: 10px;
+
+	height: 100%;
+	position: relative;
+}
+
 .login-container {
 
 	position: relative;

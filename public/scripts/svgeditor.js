@@ -458,6 +458,7 @@ var SVGGRAPH = function() {
 
 		var form = panel_content.append("form")
 			//.attr("class", "form-horizontal")
+			.attr("autocomplete", "off")
 			.on("submit", function() { updateNodeOptionsPanel(panel,d3.select(circleNode)); });
 
 		var form_name = form.append("div")

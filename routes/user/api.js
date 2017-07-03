@@ -31,6 +31,26 @@ api.delete('/file/:fileName', function(req, res) {
 	});
 });
 
+api.post('/upload/:fileName', function(req, res) {
+	// test if it is a json file, otherwise don't accept
+	try {
+		JSON.parse(req.body.jsonfile);
+	} catch (e) {
+		return res.sendStatus(400); // not in json format
+	}
+
+	console.log("DB WRITE - write file");
+	db.attachment.insert(req.user._id, req.params.fileName, req.body.jsonfile, "application/octet-stream", {rev: req.user._rev}, function(err, body) {
+		if (err) {
+			console.log("database attachment insert error");
+			return res.send("an error has occured");
+		}
+		return res.send(200);
+	});
+
+
+});
+
 api.get('/listattachments', function(req, res) {
 	console.log("DB LOOKUP - attachments");
 	db.get(req.user._id, function(err, body) {
