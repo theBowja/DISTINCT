@@ -47,10 +47,11 @@ userAdmin.post('/register', function (req, res, next) {
 				// pass in options that repopulate the form
 				return res.render('register', { taken: req.body.username, email: req.body.email, role: req.body.role} );
 			}
-			return res.redirect('/login');
+			return res.render('delayredirect', { message: info.message, delay: 4000, url: '/u/register'});
 		}
 		// successful account creation
-		return res.send("successful account creation of " + user.role + " " + user.username);
+		var message = "successful account creation of " + user.role + " " + user.username;
+		return res.render('delayredirect', { message: message, delay: 5000, url: '/u/dashboard'});
 	})(req, res, next);
 
 });

@@ -39,7 +39,7 @@ passport.deserializeUser(function(docID, done) {
 passport.use('local-login', new LocalStrategy( function(username, password, done) {
 	// Cloudant query
 	console.log("DB QUERY - login");
-	db.find({selector:{username:username}}, function(err, result) {
+	db.find({selector:{lowercaseusername:username.toLowerCase()}}, function(err, result) {
 		if (err) {
 			console.log(""+ err);
 			return done(null, false, { message: "There was an error connecting to the database" } );
@@ -79,7 +79,7 @@ passport.use('local-signup', new LocalStrategy({passReqToCallback:true}, functio
 	var body = req.body;
 
 	console.log("DB QUERY - signup");
-	db.find({selector:{username:username}}, function(err, result) {
+	db.find({selector:{lowercaseusername:username.toLowerCase()}}, function(err, result) {
 		if (err) {
 			console.log("Error find:" + err);
 			return done(null, false, { message: "There was an error connecting to the databse"} );
@@ -92,6 +92,7 @@ passport.use('local-signup', new LocalStrategy({passReqToCallback:true}, functio
 		bcrypt.hash(password, 10, function(err, hash) {
 			var user = { // TODO: make a schema/validator for user
 				username: username,
+				lowercaseusername: username.toLowerCase(),
 				password: hash,
 				role: (body.role || "user").toLowerCase(), // admin or user
 				email: body.email || "no@email",

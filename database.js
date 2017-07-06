@@ -36,6 +36,8 @@ function initDBConnection() {
 		dbCredentials.url = getDBCredentialsUrl(fs.readFileSync("config/vcap-local.json", "utf-8"));
 	}
 
+	config.dbURL = dbCredentials.url;
+
 	var cloudant = require('cloudant')(dbCredentials.url);
 
 	// check if DB exists if not create

@@ -17,12 +17,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 // middleware
 var bodyParser = require('body-parser'); // needed to touch body
 var session = require('express-session');
+var CloudantStore = require('connect-cloudant-store')(session);
+var store = new CloudantStore({
+	url: config.dbURL
+});
 var passport = require('passport');
 require('./config/auth.js'); // initialize
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // populates object with key-value pairs. value can be string or array when extended: false, or any type when extended: true.
 app.use(session({
+	store: store,
 	secret: 'bunny buddy',
 	resave: true,
 	saveUninitialized: false,
@@ -34,6 +39,10 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+
+store.on('connect', function() {
+	console.log('why are the stories never finished');
+});
 
 
 var routes = require('./routes');

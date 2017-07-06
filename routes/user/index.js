@@ -28,7 +28,7 @@ user.use(function(req,res,next) {
 
 user.get('/', function(req,res) {
 	console.log("GET request for /u/ homepage");
-	res.redirect('dashboard');
+	res.redirect('/u/dashboard');
 });
 
 // Passes the role as an option to the pug template.
@@ -53,6 +53,10 @@ user.get('/dashboard', function(req, res) {
 
 user.get('/profile', function(req, res) {
 	res.send('PROFILE PAGE HERE LMAOOOOOOO');
+});
+
+user.get('/test', function(req, res) {
+	res.render('delayredirect', { message: "omg omg", delay: 3000, url: '/u/dashboard'});
 });
 
 user.get('/organizer', function(req, res) {
@@ -85,7 +89,8 @@ user.post('/organizer', upload.single('fileToUpload'), autoReap, function(req, r
 				console.log("database attachment insert error");
 				return res.send("an error has occured");
 			}
-			return res.send(req.file.originalname + " saved successfully");
+			var message = req.file.originalname + " saved successfully";
+			return res.render('delayredirect', { message: message, delay: 4000, url: '/u/organizer'});
 		});
 	});
 });
