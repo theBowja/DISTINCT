@@ -20,15 +20,24 @@ A step by step series of examples that tell you have to get a development env ru
 
 Say what the step will be
 
+Install Node.js from [here](https://nodejs.org/en/download/)
 ```
-Give the example
+node --version
 ```
 
-And repeat
+Fork this repository
 
+Go to the repository in command line and type
 ```
-until finished
+npm install
 ```
+to automatically install the required packages
+
+In order to start the server, type:
+```
+node app.js
+```
+
 
 End with an example of getting some data out of the system or using it for a little demo
 
@@ -38,9 +47,8 @@ Add additional notes about how to deploy this on a live system
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+* [express.js](https://expressjs.com/) - The web framework used
+* [Node.js](https://nodejs.org/) - Idk what
 
 ## Versioning
 
@@ -48,7 +56,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Eric Xin** - *Initial work* - [theBowja](https://github.com/theBowja)
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
