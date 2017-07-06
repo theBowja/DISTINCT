@@ -4,14 +4,20 @@ var user = require('express').Router();
 var multer = require('multer');
 // middleware for reaping uploaded files saved to disk by multer. removes upon response end or close
 var autoReap = require('multer-autoreap');
-var upload = multer({ dest: 'public/uploads/' });
+var maxUploadSize = 25 * 1000; // 25KB
+var upload = multer({
+	dest: 'public/uploads/',
+	limits: {
+		fileSize: maxUploadSize
+	}
+});
 
 var fs = require('fs');
 var db = require('../../database');
 
-// Middleware
+// Authentication Middleware
 // Requires that user must be logged in (authenticated)
-//   in order to access the paths below
+//   in order to access the rest of the paths below
 user.use(function(req,res,next) {
 	if (req.isAuthenticated()) {
 		next();
