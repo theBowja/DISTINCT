@@ -45,7 +45,7 @@ api.post('/upload/:fileName', function(req, res) {
 			console.log("database attachment insert error");
 			return res.send("an error has occured");
 		}
-		return res.send(200);
+		return res.sendStatus(200);
 	});
 
 

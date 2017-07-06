@@ -82,6 +82,22 @@ app.use('*', function(req,res){
 	res.status(404).send('404 page not found');
 });
 
+// error-handling middleware
+app.use(function(err, req, res, next) {
+	if (err) {
+		switch (err.code) {
+			case 'LIMIT_FILE_SIZE':
+				res.send('File size too large');
+			break;
+			default:
+				res.sendStatus(500);
+				//next(err);
+		}
+	} else {
+		next();
+	}
+});
+
 app.listen(config.port, function() {
 	console.log('Express server listening on port ' + config.port);
 });

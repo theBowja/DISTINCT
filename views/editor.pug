@@ -132,15 +132,16 @@ script.
   }
   function saveAsFile() {
     event.preventDefault();
+    $('#flashmessage').text("saving...").show(0);
     $.ajax({
       type: 'POST',
       url: '/u/api/upload/' + $('#fileName').text(),
       data: { jsonfile: $('#jsontextarea').val() },
       success: function() { 
-        $('#flashmessage').text("success").show(0).delay(2500).hide(0);
+        $('#flashmessage').text("success").show(0).delay(3500).hide(0);
       },
       error: function() {
-        $('#flashmessage').text("not JSON format").show(0).delay(2500).hide(0);
+        $('#flashmessage').text("not JSON format").show(0).delay(3500).hide(0);
       }
     });
   }
