@@ -156,6 +156,7 @@ var SVGGRAPH = function() {
 			canZoom: true // unimplemented
 		},
 	};
+	OPTIONSPANEL = OPTIONSPANEL(control.shapes);
 
 	var nodes = [];
 	var links = [];
@@ -201,7 +202,11 @@ var SVGGRAPH = function() {
 				.type(function(d) { return control.getShape(d.shape); }))
 		 	.attr("fill", function(d) { return d.color; })
 			.on("click", selectNode)
-			.on("dblclick", createNodeOptionsPanel)
+			.on("dblclick", function(d) {
+				// Conditions to not open the options panel
+				if (d3.event.shiftKey && control.canCreate) return;
+				OPTIONSPANEL.create(d, this);
+			})
 			.call(d3.drag()
 				.on("start", dragstarted)
 				.on("drag", dragged)
@@ -405,129 +410,6 @@ var SVGGRAPH = function() {
 		if (control.canPlay && !d3.event.active) simulation.alphaTarget(0);
 		d.fx = null;
 		d.fy = null;
-	}
-
-	// TODO: organize all functions pertaining to options panel into another file
-	function createNodeOptionsPanel(d) {
-		var circleNode = this;
-
-		// Conditions to not open the options panel
-		if (d3.event.shiftKey && control.canCreate) return;
-		if (d3.select(circleNode).classed("optionsopen")) {
-			// TODO: fire the close node options panel event
-			return;
-		}
-
-		d3.select(circleNode).classed("optionsopen", true);
-
-		//var transform = d3.zoomTransform(d3.select("#background").node());
-	
-		var foreignObject = d3.select("#forms")
-			.append("foreignObject")
-			.attr("class", "panel")
-			//.attr("transform", "scale(0.8,0.8)")
-			.attr("x", d.x)
-			.attr("y", d.y)
-			// .attr("x", (d.x - transform.x)/transform.k)
-			// .attr("y", (d.y - transform.y)/transform.k);
-			// .attr("width", "100px")
-			// .attr("height", "300px"); // required for firefox because it does not map from css
-		var panel = foreignObject.append("xhtml:div")
-			.attr("class", "panel-default");
-		// HEADER
-		var panel_header = panel.append("div")
-			.attr("class", "panel-heading")
-			.call(d3.drag()
-				.container(circleNode.parentNode.parentNode) // sets the container of drag to the svg
-				.filter( dragFilterNodeOptionsPanel)
-				.on("drag", function() { dragNodeOptionsPanel(foreignObject); }) ); // drag panel
-		var panel_header_close = panel_header.append("span")
-			.attr("class", "close-custom")
-			.datum("undraggable")
-			.html("&times;")
-			.on("click", function() { closeNodeOptionsPanel(circleNode,foreignObject); });
-		var panel_header_title = panel_header.append("span")
-			.attr("class", "panel-title")
-			.datum("undraggable")
-			.text(d.name);
-
-		// CONTENT
-		var panel_content = panel.append("div")
-			.attr("class", "panel-body");
-			// .append("div").attr("class", "container");
-
-		var form = panel_content.append("form")
-			//.attr("class", "form-horizontal")
-			.attr("autocomplete", "off")
-			.on("submit", function() { updateNodeOptionsPanel(panel,d3.select(circleNode)); });
-
-		var form_name = form.append("div")
-			.attr("class", "form-group");
-		var form_name_label = form_name.append("label")
-			.attr("class", "control-label")
-			//.attr("for", "namename")
-			.text("Name:");
-		var form_name_input = form_name.append("input")
-			.attr("class", "form-control")
-			.attr("id", "namename")
-			.attr("type", "text")
-			.attr("value", d.name);
-
-		var form_color = form.append("div")
-			.attr("class", "form-group");
-		var form_color_label = form_color.append("label")
-			.attr("class", "control-label")
-			.text("Color:");
-		var form_color_input = form_color.append("select")
-			.attr("class", "form-control")
-			.attr("id", "colorcolor");
-		form_color_input.append("option").text("black"); // can use d3's .data() with this
-		form_color_input.append("option").text("blue");
-		form_color_input.append("option").text("green");
-		form_color_input.append("option").text("grey");
-
-		var form_submit = form.append("button")
-			.attr("class", "btn btn-default")
-			.attr("type", "submit")
-			.text("Save changes");	        	
-	}
-
-	function dragFilterNodeOptionsPanel(d,i) {
-		return d3.select(d3.event.target).datum()!="undraggable" && !d3.event.button; // !d3.event.button was default
-	}
-
-	function dragNodeOptionsPanel(foreignObject) {
-		foreignObject.attr("x", +foreignObject.attr("x") + d3.event.dx);
-		foreignObject.attr("y", +foreignObject.attr("y") + d3.event.dy);
-	}
-
-	// form and circleNode are selections
-	function updateNodeOptionsPanel(panel, circleNode) {
-		d3.event.preventDefault(); // prevents page from refreshing
-		var form = panel.select("form");
-		var formdata = {
-			name: form.select("#namename").property("value"),
-			color: form.select("#colorcolor").property("value")
-		};
-		var original = circleNode.datum();
-
-		// NAME
-		if (original.name !== formdata.name) {
-			original.name = formdata.name;
-			circleNode.select("title").text(formdata.name);
-			panel.select(".panel-title").text(formdata.name);
-		}
-		// COLOR
-		if (original.color !== formdata.color) {
-			original.color = formdata.color;
-			circleNode.attr("fill", formdata.color);
-		}
-
-	}
-
-	function closeNodeOptionsPanel(circleNode,foreignObject) {
-		d3.select(circleNode).classed("optionsopen", false);
-		foreignObject.remove();
 	}
 
 	function svg_clear() {

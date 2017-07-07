@@ -84,7 +84,7 @@ html(lang='en')
                 ul
                   li <u>double click the background</u> to create a new node
                   li <u>shift-click a node</u> to begin creating a link
-                  li <u>shift-click another node</u> to create the link
+                  li <u>shift-click another node</u> to finish creating the link
                   li <u>press delete</u> to delete all selected nodes/links
               li <strong>in non-edit mode</strong>
             h4 <strong>highlights/borders</strong>
@@ -117,16 +117,18 @@ html(lang='en')
 script.
   function listAttachments() {
     var drop = d3.select("#withDropdown");
-    // if it is open, then destroy the dropdown list
+    // if it is already open, then destroy the dropdown list
     if (drop.classed("open")) { 
       drop.select(".dropdown-menu").html(null);
-    } else { // if dropdown is not open, then get the list of attachments
+    } else { // if dropdown is not open, then get the list of attachments and show it
+      $('#flashmessage').text("loading...").show(0);
       $.get("/u/api/listattachments", function(result) {
         drop.select(".dropdown-menu").selectAll("li").data(Object.keys(result))
           .enter().append("li").append("a")
             .attr("href", function(d) { return "/u/editor/" + d; })
             .attr("tabindex", "-1")
             .text(function(d) { return d; });
+        $('#flashmessage').text("loaded").hide(0);
       });
     }
   }

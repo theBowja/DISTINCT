@@ -41,7 +41,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 store.on('connect', function() {
-	console.log('why are the stories never finished');
+	// set cleanup job every other hour
+	setInterval(function() { store.cleanupExpired(); }, 60 * 60 * 1000);
 });
 
 
