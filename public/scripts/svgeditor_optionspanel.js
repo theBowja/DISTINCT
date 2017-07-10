@@ -18,6 +18,8 @@ var OPTIONSPANEL = (function (shapes) {
 		}
 	}
 
+	// this is the schema example of how to create editable properties
+	//   "update" is not required but "label" and "type" is
 	var base = [
 		{
 			label: "name",
@@ -39,7 +41,12 @@ var OPTIONSPANEL = (function (shapes) {
 	var circle = base.concat([]);
 	var cross = base.concat([]);
 	var diamond = base.concat([]);
-	var square = base.concat([]);
+	var square = base.concat([
+		{
+			label: "nickname",
+			type: "input",
+		}
+	]);
 	var star = base.concat([]);
 	var triangle = base.concat([]);
 	var wye = base.concat([]);
@@ -66,9 +73,9 @@ var OPTIONSPANEL = (function (shapes) {
 			.append("foreignObject")
 			.attr("class", "panel")
 			.attr("x", d.x)
-			.attr("y", d.y);
-			// .attr("width", "100px")
-			// .attr("height", "300px"); // required for firefox because it does not map from css
+			.attr("y", d.y)
+			.attr("width", "300px")
+			.attr("height", "275px"); // required for firefox because width/height does not map from css
 		var panel = foreignObject.append("xhtml:div")
 			.attr("class", "panel-default");
 		// HEADER
@@ -98,6 +105,9 @@ var OPTIONSPANEL = (function (shapes) {
 			//.attr("class", "form-horizontal")
 			.attr("autocomplete", "off")
 			.on("submit", function() { updateNodeOptionsPanel(panel,d3.select(shapedNode),shape); });
+		form.append("input") // this is a phantom input. this allows the form to be submitted when "enter" is pressed
+			.attr("type", "submit")
+			.style("display", "none");
 
 		// make all the elements of the form (input/select/whatever)
 		everything[shape].forEach( function(trait) {
@@ -122,9 +132,14 @@ var OPTIONSPANEL = (function (shapes) {
 			}
 		});
 
-		var form_submit = form.append("button")
-			.attr("class", "btn btn-default")
+		// FOOTER
+		var panel_footer = panel.append("div")
+			.attr("class", "panel-footer");
+
+		var form_submit = panel_footer.append("button")
+			.attr("class", "btn btn-default btn-sm")
 			.attr("type", "submit")
+			.on("click", function() { updateNodeOptionsPanel(panel,d3.select(shapedNode),shape); })
 			.text("Save changes");	        	
 	}
 
@@ -147,7 +162,8 @@ var OPTIONSPANEL = (function (shapes) {
 			var formdata = form.select("#"+trait.label).property("value");
 			if (original[trait.label] !== formdata) {
 				original[trait.label] = formdata;
-				trait.update(formdata, shapedNode, panel);
+				if (trait.update)
+					trait.update(formdata, shapedNode, panel);
 			}
 		});
 	}

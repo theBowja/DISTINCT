@@ -4,6 +4,12 @@ body.centerpls {
 	display: flex; 
 }
 
+.top {
+	height: 60px;
+	padding: 10px;
+	background-color: lightblue;
+}
+
 .left {
 	width: 20%;
 	float: left;

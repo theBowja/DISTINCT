@@ -35,7 +35,7 @@ user.get('/', function(req,res) {
 //   The pug file will determine what will be displayed based on the role.
 // Admins will have more options available to them on the dashboard.
 user.get('/dashboard', function(req, res) {
-	res.render('dashboard', { role: req.user.role} );
+	res.render('dashboard', { username: req.user.username, role: req.user.role} );
 });
 
 // user.get('/search', function(req, res) {

@@ -5,8 +5,9 @@ html(lang='en')
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
     link(rel='stylesheet', href='/style/main.css')
   body
+    .top
+      h4= username
     .left
-      h2= 'You are ' + role
       if (role === 'admin')
         a(href='register') Register a new user!
         br
