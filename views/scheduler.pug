@@ -1,0 +1,68 @@
+html(lang='en')
+  head
+    meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
+    title schedule
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js')
+    link(rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.css')
+    link(rel='stylesheet', href='/style/main.css')
+  body(style='height:100%-0px;padding:10px;')
+    #calendar
+
+script.
+    $(document).ready(function() {
+        $("#calendar").fullCalendar({
+            height: "parent",
+            navLinks: true,
+            selectable: true,
+            selectHelper: true,
+            //selectOverlap: false,
+            select: function(start, end) {
+                var title = prompt("Event Title:");
+                var eventData;
+                if (title) {
+                    eventData = {
+                        title: title,
+                        start: start,
+                        end: end
+                    };
+                    $("#calendar").fullCalendar('renderEvent', eventData, true); // stick = true
+                    // ajax call
+                }
+                $("#calendar").fullCalendar("unselect");
+            },
+            eventLimit: true,
+            customButtons: {
+                toDashboard: {
+                    text: "Dashboard",
+                    click: function() {
+                        window.location = "/u/dashboard";
+                    }
+                },
+                newEvent: {
+                    text: "add event",
+                    click: function() {
+                        console.log("wow! you scheduled something!");
+                    }
+                },
+                viewMyEvents: {
+                    text: "my events",
+                    click: function() {
+                        console.log("viewing!");
+                    }
+                }
+            },
+            header: {
+                left: "toDashboard agendaDay,agendaWeek,month,list",
+                center: "title",
+                right: "newEvent,viewMyEvents today prev,next"
+            }
+        });
+        $("#calendar").fullCalendar('renderEvent', {
+            title: "event title",
+            allDay: true,
+            start: Date.now(),
+            end: Date.now()+600000000
+        }, true)
+    });

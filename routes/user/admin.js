@@ -17,7 +17,7 @@ userAdmin.use(function(req,res,next) {
 //   an object that will be passed into the pug template.
 userAdmin.get('/list', function(req,res) {
 	console.log("DB QUERY - list users");
-	db.list({ include_docs: true }, function(err, body) {
+	db.profiles.list({ include_docs: true }, function(err, body) {
 		// maps the docs into their respective objects with the desired data
 		var myarr = body.rows.map(function(ele) {
 			return { // preformatted data to display

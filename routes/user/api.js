@@ -6,7 +6,7 @@ var db = require('../../database');
 
 api.get('/file/:fileName', function(req, res) {
 	console.log("DB LOOKUP - " + req.params.fileName);
-	db.attachment.get(req.user._id, req.params.fileName, function(err, body) {
+	db.profiles.attachment.get(req.user._id, req.params.fileName, function(err, body) {
 		if (err) {
 			console.log("file probably not found");
 			return res.send("Error: file probably not found");
@@ -22,7 +22,7 @@ api.get('/file/:fileName', function(req, res) {
 //       can probably remove one 'deserializing' if I send updated attachments from here
 api.delete('/file/:fileName', function(req, res) {
 	console.log("DB WRITE - destroy attachment");
-	db.attachment.destroy(req.user._id, req.params.fileName, {rev: req.user._rev}, function(err, body) {
+	db.profiles.attachment.destroy(req.user._id, req.params.fileName, {rev: req.user._rev}, function(err, body) {
 		if (err) {
 			console.log("Error: in destroying attachment");
 			return res.sendStatus(500);
@@ -40,7 +40,7 @@ api.post('/upload/:fileName', function(req, res) {
 	}
 
 	console.log("DB WRITE - write file");
-	db.attachment.insert(req.user._id, req.params.fileName, req.body.jsonfile, "application/octet-stream", {rev: req.user._rev}, function(err, body) {
+	db.profiles.attachment.insert(req.user._id, req.params.fileName, req.body.jsonfile, "application/octet-stream", {rev: req.user._rev}, function(err, body) {
 		if (err) {
 			console.log("database attachment insert error");
 			return res.send("an error has occured");
@@ -53,7 +53,7 @@ api.post('/upload/:fileName', function(req, res) {
 
 api.get('/listattachments', function(req, res) {
 	console.log("DB LOOKUP - attachments");
-	db.get(req.user._id, function(err, body) {
+	db.profiles.get(req.user._id, function(err, body) {
 	 	if (err) {
 	 		console.log("erroring in database lookup");
 	 		return res.sendStatus(500);
@@ -63,7 +63,24 @@ api.get('/listattachments', function(req, res) {
 	});
 });
 
+api.get('/events', function(req, res) {
+	console.log("DB QUERY - events");
+	db.schedule.find({selector:{scheduler:true}}, function(err, result) {
+		if (result.docs.length === 0) {
+			db.schedule.insert({ scheduler: true, events: [] }, function(err, body) {
+				return res.send([]);
+			});
+		}
 
+		return res.send(result.docs[0].events);
+	});
+});
+
+api.post('/events', function(req, res) {
+
+
+
+});
 
 
 module.exports = api;

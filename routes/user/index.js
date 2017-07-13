@@ -40,7 +40,7 @@ user.get('/dashboard', function(req, res) {
 
 // user.get('/search', function(req, res) {
 // 	console.log("DB QUERY - search");
-// 	db.find({selector:{username:req.query.username}}, function(err, result) {
+// 	db.profiles.find({selector:{username:req.query.username}}, function(err, result) {
 // 		if (result.docs.length === 0) {
 // 			return res.sendStatus(200);
 // 		} else {
@@ -59,9 +59,15 @@ user.get('/test', function(req, res) {
 	res.render('delayredirect', { message: "omg omg", delay: 3000, url: '/u/dashboard'});
 });
 
+user.get('/scheduler', function(req, res) {
+	console.log("DB QUERY - scheduler");
+
+	res.render('scheduler');
+});
+
 user.get('/organizer', function(req, res) {
 	console.log("DB LOOKUP - attachments");
-	db.get(req.user._id, function(err, body) {
+	db.profiles.get(req.user._id, function(err, body) {
 	 	if (err) { console.log("erroring in database lookup"); }
 
 		res.render('fileorganizer', { attachments: body._attachments} );
@@ -84,7 +90,7 @@ user.post('/organizer', upload.single('fileToUpload'), autoReap, function(req, r
 		}
 
 		console.log("DB WRITE - insert attachment");
-		db.attachment.insert(req.user._id, req.file.originalname, data, req.file.mimetype, {rev: req.user._rev}, function(err, body) {
+		db.profiles.attachment.insert(req.user._id, req.file.originalname, data, req.file.mimetype, {rev: req.user._rev}, function(err, body) {
 			if (err) {
 				console.log("database attachment insert error");
 				return res.send("an error has occured");
@@ -101,7 +107,7 @@ user.get('/editor', function(req, res) {
 
 user.get('/editor/:fileName', function(req, res) {
 	console.log("DB LOOKUP - " + req.params.fileName);
-	db.attachment.get(req.user._id, req.params.fileName, function(err, body) {
+	db.profiles.attachment.get(req.user._id, req.params.fileName, function(err, body) {
 		if (err) {
 			console.log("file probably not found");
 			return res.render('editor');

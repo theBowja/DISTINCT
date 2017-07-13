@@ -1,10 +1,10 @@
 var fs = require('fs');
 var config = require('./config/config.js');
 
-var db;
+var db = {};
 
 var dbCredentials = {
-    dbName: 'my_sample_db'
+    dbName: 'profiles'
 };
 
 function getDBCredentialsUrl(jsonData) {
@@ -45,9 +45,22 @@ function initDBConnection() {
 		if (err) {
 			console.log('Could not create new db: ' + dbCredentials.dbName + ', it might already exist.');
 		}
+		db.profiles = cloudant.use(dbCredentials.dbName);
 	});
 
-	db = cloudant.use(dbCredentials.dbName);
+
+	// will return error if the database already exists
+	cloudant.db.create('schedule', function(err, res) {
+		db.schedule = cloudant.use('schedule');
+
+		if (!err) { // if database is newly created
+			// insert initial doc
+			console.log("DB WRITE - init schedule doc");
+			db.schedule.insert({ scheduler: true, events: [] }, function(err, body) {
+
+			});
+		}
+	});
 
 	config.dbCredentials = dbCredentials;
 }

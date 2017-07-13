@@ -20,7 +20,7 @@ passport.serializeUser(function(user, done) {
 // The user object is stored in req.user
 passport.deserializeUser(function(docID, done) {
 	console.log("DB LOOKUP - deserializing");
-	db.get(docID, function(err, body) {
+	db.profiles.get(docID, function(err, body) {
 	 	if (err) { console.log("erroring in database lookup"); }
 
 		var user = {
@@ -39,7 +39,7 @@ passport.deserializeUser(function(docID, done) {
 passport.use('local-login', new LocalStrategy( function(username, password, done) {
 	// Cloudant query
 	console.log("DB QUERY - login");
-	db.find({selector:{lowercaseusername:username.toLowerCase()}}, function(err, result) {
+	db.profiles.find({selector:{lowercaseusername:username.toLowerCase()}}, function(err, result) {
 		if (err) {
 			console.log(""+ err);
 			return done(null, false, { message: "There was an error connecting to the database" } );
@@ -60,7 +60,7 @@ passport.use('local-login', new LocalStrategy( function(username, password, done
 				console.log("Password matches");
 				console.log("DB WRITE - last login");
 				user.lastLogin = new Date().toISOString();
-				db.insert(user, function(err, body) {
+				db.profiles.insert(user, function(err, body) {
 					if (err) {
 						console.log("error in write");
 						return done(null, false, {message: "Database error"} );
@@ -79,7 +79,7 @@ passport.use('local-signup', new LocalStrategy({passReqToCallback:true}, functio
 	var body = req.body;
 
 	console.log("DB QUERY - signup");
-	db.find({selector:{lowercaseusername:username.toLowerCase()}}, function(err, result) {
+	db.profiles.find({selector:{lowercaseusername:username.toLowerCase()}}, function(err, result) {
 		if (err) {
 			console.log("Error find:" + err);
 			return done(null, false, { message: "There was an error connecting to the databse"} );
@@ -101,7 +101,7 @@ passport.use('local-signup', new LocalStrategy({passReqToCallback:true}, functio
 			};
 
 			console.log("DB WRITE - signup");
-			db.insert(user, function(err, body) {
+			db.profiles.insert(user, function(err, body) {
 				if (err) {
 					console.log("Cannot insert document into database");
 					return done(null, false, { message: "Problem with registering user into Cloudant"} );
