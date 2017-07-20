@@ -6,63 +6,41 @@ html(lang='en')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js')
     script(src='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js')
     link(rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.css')
-    link(rel='stylesheet', href='/style/main.css')
+    //- the following is for bootstrap modals
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+    link(rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+    //- the following is for datetime picker
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js')
+    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css')
+
+    script(src='/scripts/scheduler.js')
+
   body(style='height:100%-0px;padding:10px;')
     #calendar
-
-script.
-    $(document).ready(function() {
-        $("#calendar").fullCalendar({
-            height: "parent",
-            navLinks: true,
-            selectable: true,
-            selectHelper: true,
-            //selectOverlap: false,
-            select: function(start, end) {
-                var title = prompt("Event Title:");
-                var eventData;
-                if (title) {
-                    eventData = {
-                        title: title,
-                        start: start,
-                        end: end
-                    };
-                    $("#calendar").fullCalendar('renderEvent', eventData, true); // stick = true
-                    // ajax call
-                }
-                $("#calendar").fullCalendar("unselect");
-            },
-            eventLimit: true,
-            customButtons: {
-                toDashboard: {
-                    text: "Dashboard",
-                    click: function() {
-                        window.location = "/u/dashboard";
-                    }
-                },
-                newEvent: {
-                    text: "add event",
-                    click: function() {
-                        console.log("wow! you scheduled something!");
-                    }
-                },
-                viewMyEvents: {
-                    text: "my events",
-                    click: function() {
-                        console.log("viewing!");
-                    }
-                }
-            },
-            header: {
-                left: "toDashboard agendaDay,agendaWeek,month,list",
-                center: "title",
-                right: "newEvent,viewMyEvents today prev,next"
-            }
-        });
-        $("#calendar").fullCalendar('renderEvent', {
-            title: "event title",
-            allDay: true,
-            start: Date.now(),
-            end: Date.now()+600000000
-        }, true)
-    });
+    //- #dialog-form(title='Create new event')
+    //-   form
+    //-     fieldset
+    //-       label(for='title') Title
+    //-       input#title.text.ui-widget-content.ui-corner-all(type='text' name='title')
+    //-       //- input(type='submit' tabindex='-1' style='position:absolute;top:-1000px')
+    #addeventmodal.modal.fade(tabindex='-1')
+      .modal-dialog
+        .modal-content
+          .modal-header
+            button.close(type='button' data-dismiss='modal') &times;
+            h4.modal-title Create new event
+          .modal-body
+            form#eventform(autocomplete='off')
+              .form-group
+                label.form-control-label(for='title') Event title:
+                input#title.form-control(type='text' required)
+              .form-group
+                label.form-control-label(for='dtpstart') Start:
+                input#dtpstart.form-control(type='text')
+              .form-group
+                label.form-control-label(for='dtpend') End:
+                input#dtpend.form-control(type='text')
+              input(type='submit' style='display:none;')
+          .modal-footer
+            button.btn.btn-primary(type='submit' onclick='$("#eventform").submit()') Create event
+            button.btn.btn-default(type='button' data-dismiss='modal') Close

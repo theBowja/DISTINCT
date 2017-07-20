@@ -65,8 +65,8 @@ passport.use('local-login', new LocalStrategy( function(username, password, done
 						console.log("error in write");
 						return done(null, false, {message: "Database error"} );
 					}
+					return done(null, user);
 				});
-				return done(null, user);
 			} else {
 				console.log("Incorrect password");
 				return done(null, false, { message: "Password is incorrect"} );
