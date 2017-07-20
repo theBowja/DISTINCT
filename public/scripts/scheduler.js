@@ -37,7 +37,7 @@ $(document).ready(function() {
 		selectHelper: true,
 		selectOverlap: false,
 		//selectOverlap: false,
-		selectMinDistance: 15,
+		selectMinDistance: 13,
 		allDayDefault: false,
 		allDaySlot: false,
 		selectAllow: function(selectInfo) {
@@ -51,11 +51,42 @@ $(document).ready(function() {
 			$("#calendar").fullCalendar("unselect");
 		},
 		eventLimit: true,
+		buttonText: {
+			listDay: "day",
+			listWeek: "week",
+			listMonth: "month"
+		},
 		customButtons: {
 			toDashboard: {
 				text: "Dashboard",
 				click: function() {
 					window.location = "/u/dashboard";
+				}
+			},
+			toggleList: {
+				text: "list",
+				click: function() {
+					var currentView = $("#calendar").fullCalendar('getView').type;
+					if ($(".fc-toggleList-button").hasClass("fc-state-active")) { // if in list view
+						$("#calendar").fullCalendar("option", { header: { left: "toDashboard agendaDay,agendaWeek,month,toggleList" } });
+						if (currentView === "listDay") {
+							$("#calendar").fullCalendar("changeView", "agendaDay");
+						} else if (currentView === "listWeek") {
+							$("#calendar").fullCalendar("changeView", "agendaWeek");
+						} else if (currentView === "listMonth") {
+							$("#calendar").fullCalendar("changeView", "month");
+						}
+					} else {
+						$("#calendar").fullCalendar("option", { header: { left: "toDashboard listDay,listWeek,listMonth,toggleList" } });
+						$(".fc-toggleList-button").toggleClass("fc-state-active");
+						if (currentView === "agendaDay") {
+							$("#calendar").fullCalendar("changeView", "listDay");
+						} else if (currentView === "agendaWeek") {
+							$("#calendar").fullCalendar("changeView", "listWeek");
+						} else if (currentView === "month") {
+							$("#calendar").fullCalendar("changeView", "listMonth");
+						}
+					}
 				}
 			},
 			newEvent: {
@@ -70,21 +101,15 @@ $(document).ready(function() {
 				click: function() {
 					console.log("viewing!");
 				}
-			}
+			},
 		},
 		header: {
-			left: "toDashboard agendaDay,agendaWeek,month,list",
+			left: "toDashboard agendaDay,agendaWeek,month,toggleList",
 			center: "title",
 			right: "newEvent,viewMyEvents today prev,next"
 		}
 	});
-	//- $("#calendar").fullCalendar('renderEvent', {
-	//-     title: "event title",
-	//-     allDay: true,
-	//-     start: Date.now(),
-	//-     end: Date.now()+600000000
-	//- }, true); // stick=true
-	updateEvents();
+	updateEvents(); // get the events and render them
 
 		//- DATETIMEPICKER
 	$("#dtpstart").datetimepicker({
