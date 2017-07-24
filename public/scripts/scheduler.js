@@ -1,9 +1,3 @@
-function updateEvents() {
-	$.get("/u/api/events", function(result) {
-		$("#calendar").fullCalendar('renderEvents', result, true);
-	});
-}
-
 function test() {
 	console.log("form submitted");
 }
@@ -12,14 +6,15 @@ function postEvent(newEvent) {
 	$.ajax({
 		type: 'POST',
 		url: '/u/api/events',
-		data: newEvent,
+		data: { newevent: newEvent },
 		success: function() {
-		  console.log('success');
-		  // $('#flashmessage').text("success").show(0).delay(3500).hide(0);
+			//updateEvents();
+			$('#calendar').fullCalendar('refetchEvents');
+			$('#alertmessage').text("success").show(0).delay(5000).hide(0);
 		},
 		error: function() {
-		  console.log('error');
-		  // $('#flashmessage').text("not JSON format").show(0).delay(3500).hide(0);
+			console.log("error");
+			$('#alertmessage').text("error").show(0).delay(5000).hide(0);
 		}
 	});
 }
@@ -27,7 +22,16 @@ function postEvent(newEvent) {
 $(document).ready(function() {
 	$("#eventform").on("submit", function(e) {
 		e.preventDefault();
-		console.log("you see the form submit")
+		$('#alertmessage').text("creating...").show(0);
+
+		var eventdata = $('#eventform').serializeArray().reduce(function(obj, item) {
+			obj[item.name] = item.value;
+			return obj;
+		}, {});
+		eventdata.start = new Date(eventdata.start).toISOString();
+		eventdata.end = new Date(eventdata.end).toISOString();
+
+		postEvent(eventdata);
 	});
 
 	$("#calendar").fullCalendar({
@@ -51,6 +55,9 @@ $(document).ready(function() {
 			$("#calendar").fullCalendar("unselect");
 		},
 		eventLimit: true,
+		events: {
+			url: "/u/api/events"
+		},
 		buttonText: {
 			listDay: "day",
 			listWeek: "week",
@@ -109,9 +116,8 @@ $(document).ready(function() {
 			right: "newEvent,viewMyEvents today prev,next"
 		}
 	});
-	updateEvents(); // get the events and render them
 
-		//- DATETIMEPICKER
+	//- DATETIMEPICKER
 	$("#dtpstart").datetimepicker({
 		minDate: moment(),
 		stepping: 30

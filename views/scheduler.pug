@@ -17,12 +17,6 @@ html(lang='en')
 
   body(style='height:100%-0px;padding:10px;')
     #calendar
-    //- #dialog-form(title='Create new event')
-    //-   form
-    //-     fieldset
-    //-       label(for='title') Title
-    //-       input#title.text.ui-widget-content.ui-corner-all(type='text' name='title')
-    //-       //- input(type='submit' tabindex='-1' style='position:absolute;top:-1000px')
     #addeventmodal.modal.fade(tabindex='-1')
       .modal-dialog
         .modal-content
@@ -33,14 +27,15 @@ html(lang='en')
             form#eventform(autocomplete='off')
               .form-group
                 label.form-control-label(for='title') Event title:
-                input#title.form-control(type='text' required)
+                input#title.form-control(type='text' name='title' required)
               .form-group
                 label.form-control-label(for='dtpstart') Start:
-                input#dtpstart.form-control(type='text')
+                input#dtpstart.form-control(type='text' name='start' required)
               .form-group
                 label.form-control-label(for='dtpend') End:
-                input#dtpend.form-control(type='text')
-              input(type='submit' style='display:none;')
+                input#dtpend.form-control(type='text' name='end' required)
+              input#hiddensubmit(type='submit' style='display:none;')
           .modal-footer
-            button.btn.btn-primary(type='submit' onclick='$("#eventform").submit()') Create event
+            span#alertmessage(style='float:left; display:none;') don't panic
+            button.btn.btn-primary(type='submit' onclick='$("#hiddensubmit").click()') Create event
             button.btn.btn-default(type='button' data-dismiss='modal') Close

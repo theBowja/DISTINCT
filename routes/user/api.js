@@ -66,48 +66,52 @@ api.get('/listattachments', function(req, res) {
 api.get('/events', function(req, res) {
 	console.log("DB QUERY - events");
 	db.schedule.find({selector:{scheduler:true}}, function(err, result) {
-		if (result.docs.length === 0) {
-			console.log("DB WRITE - init event doc");
-			db.schedule.insert({ scheduler: true, events: [] }, function(err, body) {
-				return res.send([]);
-			});
-		} else {
-			return res.send(result.docs[0].events);
-		}
+		return res.send(result.docs.length === 0 ? [] : result.docs[0].events || []);
 	});
 });
 
 api.post('/events', function(req, res) {
 	var event = req.body.newevent;
+	var evStart = new Date(event.start).getTime();
+	var evEnd = new Date(event.end).getTime();
 	// check if 'event' is a valid event
 	if (typeof event !== 'object' ||
 		!event.hasOwnProperty('title') ||
 		!event.hasOwnProperty('start') ||
-		!event.hasOwnProperty('end')) {
+		!event.hasOwnProperty('end') ||
+		evStart === 'NaN' || evEnd === 'NaN' ||
+		evStart === evEnd ||
+		evStart > evEnd ||
+		evEnd - evStart > 5 * 24 * 60 * 60 * 1000) {
 		return res.sendStatus(400);
 	}
 
-	// 'sanitize' by mapping
-	var newEvent = {
-		title: event.title,
-		group: req.user._id,
-		allDay: false,
-		start: event.start,
-		end: event.end
-	};
-
 	console.log('DB QUERY - events');
 	db.schedule.find({selector:{scheduler:true}}, function(err, result) {
-		var schedule;
-		if (result.docs.length === 0) 
-			schedule = { scheduler: true, events: [] };
-		else 
-			schedule = result.docs[0];
-		
+		var schedule = result.docs.length === 0 ? { scheduler: true, events: [] } : result.docs[0];
+		if (!Array.isArray(schedule.events)) schedule.events = [];
+
+		// check if 'event' overlaps with an existing event
+		schedule.events.forEach(function(ele) {
+			if (new Date(ele.start).getTime() <= evStart && evStart < new Date(ele.end) ||
+				new Date(ele.start) < evEnd && evEnd <= new Date(ele.end).getTime())
+			return res.sendStatus(409); // Conflict
+		});
+
+		// 'sanitize' by mapping
+		var newEvent = {
+			title: event.title,
+			group: req.user._id,
+			allDay: false,
+			start: event.start,
+			end: event.end
+		};
+
 		schedule.events.push(newEvent);
+
 		console.log('DB WRITE - add event');
 		db.schedule.insert(schedule, function(err, body) {
-			return res.sendStatus(200);
+			return res.sendStatus(200); // OK
 		});
 	});
 });

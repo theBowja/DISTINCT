@@ -45,9 +45,15 @@ store.on('connect', function() {
 	// set cleanup job every other hour
 	setInterval(function() {
 		console.log("cleanup");
-		store.cleanupExpired(); }, 60 * 60 * 1000);
+		store.cleanupExpired();
+	}, 60 * 60 * 1000);
 });
 
+// TODO: supply a favicon.ico file that is available at the root
+// app.get('/favicon.ico', function(req, res) {
+// 	console.log("favi");
+// 	res.sendStatus(204);
+// });
 
 var routes = require('./routes');
 app.use('/', routes);
@@ -94,6 +100,8 @@ app.get('/dbinit', function (req, res) {
 	});
 
 });
+
+
 
 // this is somehow producing an "Error: Can't set headers after they are sent."
 app.use('*', function(req,res){
