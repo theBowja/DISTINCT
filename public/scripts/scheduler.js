@@ -14,6 +14,7 @@ function postEvent(newEvent) {
 		},
 		error: function() {
 			console.log("error");
+			$('#calendar').fullCalendar('refetchEvents');
 			$('#alertmessage').text("error").show(0).delay(5000).hide(0);
 		}
 	});
@@ -58,6 +59,7 @@ $(document).ready(function() {
 		events: {
 			url: "/u/api/events"
 		},
+		timezone: "local",
 		buttonText: {
 			listDay: "day",
 			listWeek: "week",
@@ -75,7 +77,7 @@ $(document).ready(function() {
 				click: function() {
 					var currentView = $("#calendar").fullCalendar('getView').type;
 					if ($(".fc-toggleList-button").hasClass("fc-state-active")) { // if in list view
-						$("#calendar").fullCalendar("option", { header: { left: "toDashboard agendaDay,agendaWeek,month,toggleList" } });
+						$("#calendar").fullCalendar("option", { header: { left: "toDashboard agendaDay,agendaWeek,month,toggleList,viewMyEvents" } });
 						if (currentView === "listDay") {
 							$("#calendar").fullCalendar("changeView", "agendaDay");
 						} else if (currentView === "listWeek") {
@@ -84,7 +86,7 @@ $(document).ready(function() {
 							$("#calendar").fullCalendar("changeView", "month");
 						}
 					} else {
-						$("#calendar").fullCalendar("option", { header: { left: "toDashboard listDay,listWeek,listMonth,toggleList" } });
+						$("#calendar").fullCalendar("option", { header: { left: "toDashboard listDay,listWeek,listMonth,toggleList,viewMyEvents" } });
 						$(".fc-toggleList-button").toggleClass("fc-state-active");
 						if (currentView === "agendaDay") {
 							$("#calendar").fullCalendar("changeView", "listDay");
@@ -96,24 +98,29 @@ $(document).ready(function() {
 					}
 				}
 			},
-			newEvent: {
-				text: "add event",
-				click: function() {
-					$("#addeventmodal").modal("toggle");
-					console.log("wow! you scheduled something!");
-				}
-			},
 			viewMyEvents: {
 				text: "my events",
 				click: function() {
 					console.log("viewing!");
 				}
 			},
+			newEvent: {
+				text: "add event",
+				click: function() {
+					$("#addeventmodal").modal("toggle");
+				}
+			},
+			manage: {
+				text: "manage event",
+				click: function() {
+					console.log("pls manage");
+				}
+			}
 		},
 		header: {
-			left: "toDashboard agendaDay,agendaWeek,month,toggleList",
+			left: "toDashboard agendaDay,agendaWeek,month,toggleList,viewMyEvents",
 			center: "title",
-			right: "newEvent,viewMyEvents today prev,next"
+			right: "newEvent,manage today prev,next"
 		}
 	});
 

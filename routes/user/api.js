@@ -2,7 +2,7 @@
 var api = require('express').Router();
 
 var db = require('../../database');
-
+var uuidv1 = require('uuid/v1');
 
 api.get('/file/:fileName', function(req, res) {
 	console.log("DB LOOKUP - " + req.params.fileName);
@@ -66,6 +66,7 @@ api.get('/listattachments', function(req, res) {
 api.get('/events', function(req, res) {
 	console.log("DB QUERY - events");
 	db.schedule.find({selector:{scheduler:true}}, function(err, result) {
+		if (err) return res.sendStatus(400);
 		return res.send(result.docs.length === 0 ? [] : result.docs[0].events || []);
 	});
 });
@@ -80,8 +81,7 @@ api.post('/events', function(req, res) {
 		!event.hasOwnProperty('start') ||
 		!event.hasOwnProperty('end') ||
 		evStart === 'NaN' || evEnd === 'NaN' ||
-		evStart === evEnd ||
-		evStart > evEnd ||
+		evStart >= evEnd ||
 		evEnd - evStart > 5 * 24 * 60 * 60 * 1000) {
 		return res.sendStatus(400);
 	}
@@ -92,14 +92,12 @@ api.post('/events', function(req, res) {
 		if (!Array.isArray(schedule.events)) schedule.events = [];
 
 		// check if 'event' overlaps with an existing event
-		schedule.events.forEach(function(ele) {
-			if (new Date(ele.start).getTime() <= evStart && evStart < new Date(ele.end) ||
-				new Date(ele.start) < evEnd && evEnd <= new Date(ele.end).getTime())
+		if (!schedule.events.every(function(ele) { return evEnd <= new Date(ele.start).getTime() || evStart >= new Date(ele.end).getTime(); }))
 			return res.sendStatus(409); // Conflict
-		});
 
 		// 'sanitize' by mapping
 		var newEvent = {
+			id: uuidv1(),
 			title: event.title,
 			group: req.user._id,
 			allDay: false,
