@@ -2,21 +2,24 @@ html(lang='en')
   head
     meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
     title list
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js')
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js')
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
-    link(rel='stylesheet', href='/style/main.css')
-    script(src='/scripts/sortTable.js')
-  body
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.css')
+    //- script(src='/scripts/sortTable.js')
+  body(style='padding:10px;')
     a(href='dashboard') Dashboard
     br
     br
-    table#myTable2(border='1')
+    table#table37(data-toggle='table' data-search='true' data-search-text='' data-search-align='left')
       thead
         tr
-          th#username(onclick='sortTable(0)') Username
-          th#email(onclick='sortTable(1)') Email
-          th#role(onclick='sortTable(2)') Role
-          th#datecreated(onclick='sortTable(3)') Time created (UTC)
-          th#lastlogin(onclick='sortTable(4)') Last login (UTC)
+          th#username(data-field='username' data-sortable='true') Username
+          th#email(data-field='email' data-sortable='true') Email
+          th#role(data-field='role' data-sortable='true') Role
+          th#datecreated(data-field='datecreated' data-sortable='true' data-sorter='dateSorter') Time created (UTC)
+          th#lastlogin(data-field='lastlogin' data-sortable='true' data-sorter='dateSorter') Last login (UTC)
       tbody
         each user in data
           tr
@@ -25,3 +28,20 @@ html(lang='en')
             td= user.role
             td= user.timeCreated
             td= user.lastLogin
+
+script.
+  function dateSorter(a,b) {
+    try {
+      a = new Date(a).toISOString();
+    } catch (e) {
+      a = "";
+    }
+    try {
+      b = new Date(b).toISOString();
+    } catch (e) {
+      b = "";
+    }
+    if (a < b) return -1;
+    if (a > b) return 1;
+    return 0;
+  }

@@ -1,10 +1,10 @@
 var fs = require('fs');
 var config = require('./config/config.js');
 
-var db;
+var db = {};
 
 var dbCredentials = {
-    dbName: 'my_sample_db'
+    dbName: 'profiles'
 };
 
 function getDBCredentialsUrl(jsonData) {
@@ -45,9 +45,45 @@ function initDBConnection() {
 		if (err) {
 			console.log('Could not create new db: ' + dbCredentials.dbName + ', it might already exist.');
 		}
+		db.profiles = cloudant.use(dbCredentials.dbName);
 	});
 
-	db = cloudant.use(dbCredentials.dbName);
+	// DATABASE FOR 'SCHEDULE'
+	// will return error if the database already exists
+	cloudant.db.create('schedule', function(err, res) {
+		db.schedule = cloudant.use('schedule');
+
+		if (!err) { // if database is newly created
+			// insert initial doc
+			console.log("DB WRITE - init schedule doc");
+			db.schedule.insert({ scheduler: true, events: [] });
+		}
+
+		// cleanup expired events every half hour
+		setInterval( function() {
+			console.log("DB QUERY - events");
+			db.schedule.find({selector:{scheduler:true}}, function(err, result) {
+				if (result.docs.length === 0) return;
+				var schedule = result.docs[0];
+
+				var expired = schedule.expired || [];
+				var filteredevents = [];
+				var events = schedule.events || [];
+				events.forEach( function(ele) { // split the events
+					if (new Date(ele.end) < new Date())
+						expired.push(ele);
+					else
+						filteredevents.push(ele);
+				});
+
+				schedule.expired = expired;
+				schedule.events = filteredevents;
+
+				console.log("DB WRITE - filter expired events");
+				db.schedule.insert(schedule);
+			});
+		}, 30 * 60 * 1000);
+	});
 
 	config.dbCredentials = dbCredentials;
 }

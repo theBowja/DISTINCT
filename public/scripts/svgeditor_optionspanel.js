@@ -43,8 +43,8 @@ var OPTIONSPANEL = (function (shapes) {
 	var diamond = base.concat([]);
 	var square = base.concat([
 		{
-			label: "nickname",
-			type: "input",
+			label: "blahblahblah",
+			type: "textarea",
 		}
 	]);
 	var star = base.concat([]);
@@ -54,7 +54,6 @@ var OPTIONSPANEL = (function (shapes) {
 	var everything = {circle: circle, cross: cross, diamond: diamond, square: square, star: star, triangle: triangle, wye: wye};
 
 
-	// TODO: organize all functions pertaining to options panel into another file
 	function createNodeOptionsPanel(d, node, canCreate) {
 		var shapedNode = node;
 		var shape = getShape(d.shape);
@@ -127,6 +126,9 @@ var OPTIONSPANEL = (function (shapes) {
 				case("select"):
 					fcon.selectAll("option").data(trait.options).enter().append("option")
 						.text(function(opt) { return opt; });
+					break;
+				case("textarea"):
+					fcon.property("value", d[trait.label]);
 					break;
 				default:
 			}
