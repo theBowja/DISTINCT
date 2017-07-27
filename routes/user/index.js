@@ -62,7 +62,7 @@ user.get('/test', function(req, res) {
 user.get('/scheduler', function(req, res) {
 	console.log("DB QUERY - scheduler");
 
-	res.render('scheduler');
+	res.render('scheduler', { group: req.user._id} );
 });
 
 user.get('/organizer', function(req, res) {
