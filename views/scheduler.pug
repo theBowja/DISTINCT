@@ -13,6 +13,8 @@ html(lang='en')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js')
     link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css')
 
+    script.
+      var GROUP = '#{group}';
     script(src='/scripts/scheduler.js')
 
   body(style='height:100%-0px;padding:10px;')
@@ -36,6 +38,17 @@ html(lang='en')
                 input#dtpend.form-control(type='text' name='end' required)
               input#hiddensubmit(type='submit' style='display:none;')
           .modal-footer
-            span#alertmessage(style='float:left; display:none;') don't panic
+            span#addeventalert(style='float:left; display:none;') don't panic
             button.btn.btn-primary(type='submit' onclick='$("#hiddensubmit").click()') Create event
+            button.btn.btn-default(type='button' data-dismiss='modal') Close
+    #manageeventsmodal.modal.fade(tabindex='-1')
+      .modal-dialog
+        .modal-content
+          .modal-header
+            button.close(type='button' data-dismiss='modal') &times;
+            h4.modal-title Manage events
+          .modal-body
+            table#managetable.table.table-bordered
+          .modal-footer
+            span#manageeventalert(style='float:left; display:none;') don't panic
             button.btn.btn-default(type='button' data-dismiss='modal') Close

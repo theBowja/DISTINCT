@@ -114,5 +114,22 @@ api.post('/events', function(req, res) {
 	});
 });
 
+api.delete('/events/:eventID', function(req, res) {
+	console.log('DB QUERY - events');
+	db.schedule.find({selector:{scheduler:true}}, function(err, result) {
+		if (err || result.docs.length === 0 || !result.docs[0].events) return res.sendStatus(400);
+
+		var schedule = result.docs[0];
+		var ind = schedule.events.findIndex(function(ele) { return ele.id === req.params.eventID && ele.group === req.user._id; });
+		if (ind === -1) return res.sendStatus(400);
+		schedule.events.splice(ind,1);
+
+		console.log('DB WRITE - delete event');
+		db.schedule.insert(schedule, function(err, body) {
+			return res.sendStatus(200); // OK
+		});
+	});
+});
+
 
 module.exports = api;

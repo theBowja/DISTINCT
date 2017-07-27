@@ -63,7 +63,7 @@ function initDBConnection() {
 		setInterval( function() {
 			console.log("DB QUERY - events");
 			db.schedule.find({selector:{scheduler:true}}, function(err, result) {
-				if (result.docs.length === 0) return;
+				if (err || result.docs.length === 0) return;
 				var schedule = result.docs[0];
 
 				var expired = schedule.expired || [];
