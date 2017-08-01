@@ -41,9 +41,30 @@ node app.js
 
 End with an example of getting some data out of the system or using it for a little demo
 
+## Running
+
+Running application locally:
+good luck
+
 ## Deployment
 
 Add additional notes about how to deploy this on a live system
+
+## Development
+
+To add a Cloudant database to use: database.js
+```
+cloudant.db.create(<dbname>, function(err, res) {
+  db.<dbname> = cloudant.use(<dbname>);
+  // do stuff like initializing or whatever
+});
+```
+To use the Cloudant database in other code:
+```
+var db = require('./database'); // relative file path may be different
+db.<dbname>.get( ... // whatever function provided by cloudant-nano
+...
+```
 
 ## Built With
 
