@@ -40,6 +40,7 @@ function initDBConnection() {
 
 	var cloudant = require('cloudant')(dbCredentials.url);
 
+	// DATABASE FOR 'PROFILES'
 	// check if DB exists if not create
 	cloudant.db.create(dbCredentials.dbName, function(err, res) {
 		if (err) {

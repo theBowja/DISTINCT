@@ -20,7 +20,8 @@ var session = require('express-session');
 var CloudantStore = require('connect-cloudant-store')(session);
 var store = new CloudantStore({
 	url: config.dbURL,
-	ttl: 5 * 60 * 1000 // 5 minutes
+	databaseName: 'sessions'
+	// ttl: 5 * 60 * 1000 // 5 minutes
 });
 var passport = require('passport');
 require('./config/auth.js'); // initialize
@@ -35,18 +36,24 @@ app.use(session({
 	//store: , // default is MemoryStore instance which is not for production
 	//rolling: true, // set cookie on every response. expiration set to original maxAge
 	cookie: {
-		maxAge: 60 * 60 * 1000 // 5 minute
+		maxAge: 5 * 60 * 1000 // 5 minute
 	}
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 
 store.on('connect', function() {
+	console.log("cloudant session store is ready for use");
 	// set cleanup job every other hour
-	setInterval(function() {
-		console.log("cleanup");
-		store.cleanupExpired();
-	}, 60 * 60 * 1000);
+	// setInterval(function() {
+	// 	console.log("cleanup");
+	// 	store.cleanupExpired();
+	// }, 60 * 60 * 1000);
+});
+
+process.on('unhandledRejection', (reason, p) => {
+  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+  // application specific logging, throwing an error, or other logic here
 });
 
 // TODO: supply a favicon.ico file that is available at the root
