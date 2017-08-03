@@ -438,13 +438,11 @@ var SVGGRAPH = function() {
 		var schema = topologySchema;
 		var validate = ajv.compile(schema);
 		var valid = validate(data);
-
 		if (!valid) {
 			console.error("IMPORT: invalid format: " + ajv.errorsText(validate.errors));
 			return;
 		}
-
-
+		
 		// The || operator can be used to fill in default values:
 		var importObject = data;
 

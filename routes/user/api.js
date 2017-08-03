@@ -4,6 +4,9 @@ var api = require('express').Router();
 var db = require('../../database');
 var uuidv1 = require('uuid/v1');
 
+var Ajv = require('ajv');
+var topologySchema = require('../../public/scripts/topologySchema.js');
+
 api.get('/file/:fileName', function(req, res) {
 	console.log("DB LOOKUP - " + req.params.fileName);
 	db.profiles.attachment.get(req.user._id, req.params.fileName, function(err, body) {
@@ -32,12 +35,27 @@ api.delete('/file/:fileName', function(req, res) {
 });
 
 api.post('/upload/:fileName', function(req, res) {
+	var data;
 	// test if it is a json file, otherwise don't accept
 	try {
-		JSON.parse(req.body.jsonfile);
+		data = JSON.parse(req.body.jsonfile);
 	} catch (e) {
 		return res.sendStatus(400); // not in json format
 	}
+
+	// validate the data according to a schema
+	var ajv = Ajv({ $data: true, allErrors: true});
+	// var ajv = Ajv({ $data: true, allErrors: true, removeAdditional: true});
+	ajv.addKeyword('containsNodeName', { $data:true, "validate": function (schema, data, parentSchema, currentDataPath, parentDataObject, parentProperty, rootData) {
+		for (let node of rootData.nodes) { // not supported in all browsers
+			if( node.name === data)
+				return true;
+		}
+		return false;
+	}, "errors": false });
+	var valid = ajv.validate(topologySchema, data);
+	if (!valid) return res.sendStatus(400); // does not pass validation format // console.log(ajv.errors)
+
 
 	console.log("DB WRITE - write file");
 	db.profiles.attachment.insert(req.user._id, req.params.fileName, req.body.jsonfile, "application/octet-stream", {rev: req.user._rev}, function(err, body) {
@@ -47,7 +65,6 @@ api.post('/upload/:fileName', function(req, res) {
 		}
 		return res.sendStatus(200);
 	});
-
 
 });
 
@@ -63,6 +80,7 @@ api.get('/listattachments', function(req, res) {
 	});
 });
 
+// Returns the array of active events. If there are no active events, then return an empty array.
 api.get('/events', function(req, res) {
 	console.log("DB QUERY - events");
 	db.schedule.find({selector:{scheduler:true}}, function(err, result) {

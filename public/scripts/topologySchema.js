@@ -33,3 +33,6 @@ var topologySchema = {
 	},
 	"required": ["nodes", "links"]
 };
+
+// should show as an error in browser and hopefully not affect anything then
+module.exports = topologySchema;
