@@ -8,11 +8,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
-
-```
-Give examples
-```
+Node.js and [Bluemix CLI](https://clis.ng.bluemix.net/ui/home.html) for Deployment
 
 ### Installing
 
@@ -48,7 +44,7 @@ good luck
 
 ## Deployment
 
-Add additional notes about how to deploy this on a live system
+Follow this guide for Bluemix [here](https://console.bluemix.net/docs/starters/upload_app.html)
 
 ## Development
 
