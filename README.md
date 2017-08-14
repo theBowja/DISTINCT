@@ -1,4 +1,4 @@
-# Project Title
+# DISTINCT
 
 One Paragraph of project description goes here
 
@@ -48,7 +48,7 @@ Follow this guide for Bluemix [here](https://console.bluemix.net/docs/starters/u
 
 ## Development
 
-To add a Cloudant database to use: database.js
+To add a Cloudant database to use: **database.js**
 ```
 cloudant.db.create(<dbname>, function(err, res) {
   db.<dbname> = cloudant.use(<dbname>);
@@ -61,6 +61,25 @@ var db = require('./database'); // relative file path may be different
 db.<dbname>.get( ... // whatever function provided by cloudant-nano
 ...
 ```
+
+## Development - Editor
+Instructions on how to use the editor is in the .pug template file.
+
+### \#svgfocus
+This element deals with the focus on the SVG. Specifically, keycodes.
+- case 27: // ESCAPE - for deselecting everything
+- case 46: // DELETE - for deleting selected nodes/links
+
+### control
+
+### Toolbox
+A clipPath specifies the boundaries of the toolbox. Each icon of the toolbox is 24px x 24px.
+To add your own icon with functionality:
+1. expand the height of the clipPath boundary by 24
+2. follow the pattern of mediabutton/interationbutton/shapebutton
+
+### Toolbox - toolboxButtonMaker(name,transform)
+Given the parameters provided, this function will create and return a button to fit in the toolbox. The *name* is used to set the id of the elements: "[name]-title" and "[name]-path". The *transform* is used to set the transform.
 
 ## Built With
 
