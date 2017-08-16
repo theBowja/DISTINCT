@@ -78,8 +78,11 @@ To add your own icon with functionality:
 1. expand the height of the clipPath boundary by 24
 2. follow the pattern of mediabutton/interationbutton/shapebutton
 
-### Toolbox - toolboxButtonMaker(name,transform)
+#### Toolbox - toolboxButtonMaker(name,transform)
 Given the parameters provided, this function will create and return a button to fit in the toolbox. The *name* is used to set the id of the elements: "[name]-title" and "[name]-path". The *transform* is used to set the transform.
+
+#### topologySchema
+A schema to verify the json of the topology. Uses AJV as its JSON Schema validator. The topology object must contain the array properties: "nodes" and "links". Each object element in the array "nodes" must have a property: "name". Each object element in the array "links" must have the properties: "source" and "target" which reference to an existing name in the "nodes" array.
 
 ## Built With
 
