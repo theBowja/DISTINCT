@@ -48,7 +48,7 @@ Follow this guide for Bluemix [here](https://console.bluemix.net/docs/starters/u
 
 ## Development
 
-To add a Cloudant database to use: **database.js**
+In **database.js**, to add a Cloudant database to use, append the following at the end of initDBConnection()
 ```
 cloudant.db.create(<dbname>, function(err, res) {
   db.<dbname> = cloudant.use(<dbname>);
@@ -71,16 +71,17 @@ This element deals with the focus on the SVG. Specifically, keycodes.
 - case 46: // DELETE - for deleting selected nodes/links
 
 ### control
+The object that stores and controls the state of the simulation. Pretty much miscellaneous stuff.
 
 ### Options Panel - (function(shapes){...})
 Parameter **shapes**: a string array of shapes that can be created. ```["circle", "cross", "diamond", "square", "star", "triangle", "wye"]```. Returns the function **createNodeOptionsPanel**.
 An interface to allow editing the data of nodes/links. **svgeditor_optionspanel.js** contains a closure for some reason...
 
 #### Creating editable properties
-These schemas are split into base and the rest of the shapes. Base includes the array of specified editable properties that all shapes will have, "name" and "color". In order to add your own custom editable property, the object must have **label** and **type**. **Type** is the type of DOM element it will be which is limited to "input", "select", and "textarea". Additional types must be specified in the ```switch(trait.type) { ... }``` in the function createNodeOptionsPanel.
+These schemas are split into base and the rest of the shapes. Base includes the array of specified editable properties that all shapes will have, "name" and "color". In order to add your own custom editable property, the object must have **label** and **type**. **Type** is the type of DOM element it will be, which is limited to "input", "select", and "textarea". Additional types must be specified in the ```switch(trait.type) { ... }``` that is in the function createNodeOptionsPanel. If the type is a "select", then an additional array property called "options" is required as well. **update** is an optional function you can include to change other stuff; otherwise, only the data attribute will be updated. The **update** function may have up to three parameters: formdata, node, panel. Formdata is the new data submitted. node is the d3 selection of the relevant node. panel refers to the options panel of the node.
 
 #### svgeditor_optionspanel.js - getShape(s)
-
+returns the relevant element in the shapes array
 
 ### Toolbox
 A clipPath specifies the boundaries of the toolbox. Each icon of the toolbox is 24px x 24px.
