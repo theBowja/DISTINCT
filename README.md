@@ -63,7 +63,7 @@ db.<dbname>.get( ... // whatever function provided by cloudant-nano
 ```
 
 ## Development - Editor
-Instructions on how to use the editor is in the .pug template file.
+Instructions on how to use the editor is listed in the .pug template file.
 
 ### \#svgfocus
 This element deals with the focus on the SVG. Specifically, keycodes.
@@ -71,6 +71,16 @@ This element deals with the focus on the SVG. Specifically, keycodes.
 - case 46: // DELETE - for deleting selected nodes/links
 
 ### control
+
+### Options Panel - (function(shapes){...})
+Parameter **shapes**: a string array of shapes that can be created. ```["circle", "cross", "diamond", "square", "star", "triangle", "wye"]```. Returns the function **createNodeOptionsPanel**.
+An interface to allow editing the data of nodes/links. **svgeditor_optionspanel.js** contains a closure for some reason...
+
+#### Creating editable properties
+These schemas are split into base and the rest of the shapes. Base includes the array of specified editable properties that all shapes will have, "name" and "color". In order to add your own custom editable property, the object must have **label** and **type**. **Type** is the type of DOM element it will be which is limited to "input", "select", and "textarea". Additional types must be specified in the ```switch(trait.type) { ... }``` in the function createNodeOptionsPanel.
+
+#### svgeditor_optionspanel.js - getShape(s)
+
 
 ### Toolbox
 A clipPath specifies the boundaries of the toolbox. Each icon of the toolbox is 24px x 24px.
@@ -81,8 +91,8 @@ To add your own icon with functionality:
 #### Toolbox - toolboxButtonMaker(name,transform)
 Given the parameters provided, this function will create and return a button to fit in the toolbox. The *name* is used to set the id of the elements: "[name]-title" and "[name]-path". The *transform* is used to set the transform.
 
-#### topologySchema
-A schema to verify the json of the topology. Uses AJV as its JSON Schema validator. The topology object must contain the array properties: "nodes" and "links". Each object element in the array "nodes" must have a property: "name". Each object element in the array "links" must have the properties: "source" and "target" which reference to an existing name in the "nodes" array.
+### topologySchema
+A schema to verify the json of the topology. Uses AJV as its JSON Schema validator. The topology object must contain the array properties: "nodes" and "links". Each object element in the array "nodes" must have a property: "name". Each object element in the array "links" must have the properties: "source" and "target" which reference to an existing "name" in the "nodes" array.
 
 ## Built With
 
