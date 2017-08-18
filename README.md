@@ -14,15 +14,15 @@ Node.js and [Bluemix CLI](https://clis.ng.bluemix.net/ui/home.html) for Deployme
 A step by step series of examples that tell you have to get a development env running. (disclaimer: may or may not work)
 
 
-Install Node.js from [here](https://nodejs.org/en/download
+1. Install Node.js from [here](https://nodejs.org/en/download
 
-Verify your Node.js installation using ```node --version```.
+2. Verify your Node.js installation using ```node --version```.
 
-Fork this repository.
+3. Fork this repository.
 
-Go to the forked repository in command line and type ```npm install``` to automatically install the required packages.
+4. Go to the forked repository in command line and type ```npm install``` to automatically install the required packages.
 
-In order to start the server, type: ```node app.js```
+5. In order to start the server, type: ```node app.js```
 
 ## Running
 
@@ -37,9 +37,8 @@ Follow this guide for Bluemix [here](https://console.bluemix.net/docs/starters/u
 
 This application uses the Express.js web framework. It starts in the **app.js** file. Near the top, *database.js* is first required and initialized. [Pug](https://pugjs.org) is then set as the template engine in the Express framework. Following that are the middlewares. When adding middlewares, one must be careful of the order they put them in, else errors may occur. The order of the routes are also imporant as it affects which middlewares used in the application’s request-response cycle. The base routes here are test routes and should be "decomissioned" when going into production.
 
-Every hour, expired sessions will be cleaned up. (**app.js**)(doesn't work currently :/)
-
-Every half hour, expired events on scheduler will be cleaned up. (**database.js**)
+- Every hour, expired sessions will be cleaned up. (**app.js**)(doesn't work currently :/)
+- Every half hour, expired events on scheduler will be cleaned up. (**database.js**)
 
 Adding a Cloudant database to use: in **database.js**, append the following code near the end of the **initDBConnection()** function:
 ```
