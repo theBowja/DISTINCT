@@ -11,10 +11,8 @@ These instructions will get you a copy of the project up and running on your loc
 Node.js and [Bluemix CLI](https://clis.ng.bluemix.net/ui/home.html) for Deployment
 
 ### Installing
+A step by step series of examples that tell you have to get a development env running.
 
-A step by step series of examples that tell you have to get a development env running
-
-Say what the step will be
 
 Install Node.js from [here](https://nodejs.org/en/download/)
 ```
@@ -40,7 +38,7 @@ End with an example of getting some data out of the system or using it for a lit
 ## Running
 
 Running application locally:
-good luck
+Server is hosted on port 3000. It can be changed in the **config/config.js** file.
 
 ## Deployment
 
@@ -48,14 +46,16 @@ Follow this guide for Bluemix [here](https://console.bluemix.net/docs/starters/u
 
 ## Development
 
-In **database.js**, to add a Cloudant database to use, append the following at the end of initDBConnection()
+This application uses the Express.js web framework. It starts in the **app.js** file. Near the top, *database.js* is first required and initialized. [Pug](https://pugjs.org) is then set as the template engine in the Express framework. Following that are the middlewares. When adding middlewares, one must be careful of the order they put them in, else errors may occur. The order of the routes are also imporant as it affects which middlewares used in the application’s request-response cycle. The base routes here are test routes and should be "decomissioned" when going into production.
+
+Adding a Cloudant database to use: in **database.js**, append the following code near the end of the **initDBConnection()** function:
 ```
 cloudant.db.create(<dbname>, function(err, res) {
   db.<dbname> = cloudant.use(<dbname>);
   // do stuff like initializing or whatever
 });
 ```
-To use the Cloudant database in other code:
+Using/accessing the Cloudant database you added:
 ```
 var db = require('./database'); // relative file path may be different
 db.<dbname>.get( ... // whatever function provided by cloudant-nano
@@ -85,7 +85,7 @@ returns the relevant element in the shapes array
 
 ### Toolbox
 A clipPath specifies the boundaries of the toolbox. Each icon of the toolbox is 24px x 24px.
-To add your own icon with functionality:
+Stpes to add your own icon with functionality:
 1. expand the height of the clipPath boundary by 24
 2. follow the pattern of mediabutton/interationbutton/shapebutton
 
