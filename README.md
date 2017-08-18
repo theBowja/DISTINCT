@@ -35,6 +35,9 @@ Follow this guide for Bluemix [here](https://console.bluemix.net/docs/starters/u
 
 ## Development
 
+Middlewares - body-parser, express-session, connect-cloudant-store, passport, multer, multer-autoreap
+
+### app.js
 This application uses the Express.js web framework. It starts in the **app.js** file. Near the top, *database.js* is first required and initialized. [Pug](https://pugjs.org) is then set as the template engine in the Express framework. Following that are the middlewares. When adding middlewares, one must be careful of the order they put them in, else errors may occur. The order of the routes are also imporant as it affects which middlewares used in the application’s request-response cycle. The base routes here are test routes and should be "decomissioned" when going into production.
 
 - Every hour, expired sessions will be cleaned up. (**app.js**)(doesn't work currently :/)
