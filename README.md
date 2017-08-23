@@ -1,6 +1,6 @@
 # DISTINCT
 
-One Paragraph of project description goes here
+https://docs.google.com/presentation/d/1yXcqzQ_bF7ZG4YzCxm1gXvq6DyfmKGHy297GhTXRL20/edit?usp=sharing
 
 ## Getting Started
 
