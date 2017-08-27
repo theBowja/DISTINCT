@@ -35,7 +35,7 @@ app.use(session({
 	//store: , // default is MemoryStore instance which is not for production
 	//rolling: true, // set cookie on every response. expiration set to original maxAge
 	cookie: {
-		maxAge: 60 * 60 * 1000 // 5 minute
+		maxAge: 5 * 60 * 1000 // 5 minute
 	}
 }));
 app.use(passport.initialize());
@@ -85,11 +85,7 @@ app.get('/test', function(req,res) {
 
 app.get('/dbinit', function (req, res) {
 	console.log("GET request for /dbinit");
-
-	 db.profiles.insert({username:"bunny", email:"example@example.com", password:"buddy"}, "bugs", function(err, data) {
-  	if (!err)
-     	console.log(data);
-	});
+	// TBD
 
 	db.profiles.list(function(err,body){
 		if(!err) {

@@ -62,7 +62,7 @@ passport.use('local-login', new LocalStrategy( function(username, password, done
 				user.lastLogin = new Date().toISOString();
 				db.profiles.insert(user, function(err, body) {
 					if (err) {
-						console.log("error in write");
+						console.log("error in lastlogin write");
 						return done(null, false, {message: "Database error"} );
 					}
 					return done(null, user);

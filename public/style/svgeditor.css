@@ -44,6 +44,8 @@ svg#editor {
 
 #nodes {
 	cursor: pointer;
+	background-color: white;
+	opacity: 1;
 }
 
 #nodes path {
