@@ -196,11 +196,17 @@ var SVGGRAPH = function() {
 	function updateNodes(nodes) {
 		node = node.data(nodes, function(d){return d.name;}); // join new data with old elements
 		node.exit().remove(); // remove unused elements
-		var nodenew = node.enter().append("path") // acts on new elements
-			.attr("d", d3.symbol()
-				.size(function(d) { return d.size || 200; })
-				.type(function(d) { return control.getShape(d.shape); }))
-		 	.attr("fill", function(d) { return d.color; })
+		// var nodenew = node.enter().append("path") // acts on new elements
+		// 	.attr("d", d3.symbol()
+		// 		.size(function(d) { return d.size || 256; })
+		// 		.type(function(d) { return control.getShape(d.shape); }))
+		//  	.attr("fill", function(d) { return d.color; })
+		var nodenew = node.enter().append("image")
+			.attr("xlink:href", "/images/router.png")
+			.attr("x", -12)
+			.attr("y", -12)
+			.attr("width", "25px")
+			.attr("height", "25px")
 			.on("click", selectNode)
 			.on("dblclick", function(d) {
 				// Conditions to not open the options panel

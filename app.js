@@ -92,11 +92,7 @@ app.get('/test', function(req,res) {
 
 app.get('/dbinit', function (req, res) {
 	console.log("GET request for /dbinit");
-
-	 db.profiles.insert({username:"bunny", email:"example@example.com", password:"buddy"}, "bugs", function(err, data) {
-  	if (!err)
-     	console.log(data);
-	});
+	// TBD
 
 	db.profiles.list(function(err,body){
 		if(!err) {

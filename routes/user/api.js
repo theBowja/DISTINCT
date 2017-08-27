@@ -20,6 +20,42 @@ api.get('/file/:fileName', function(req, res) {
 	});
 });
 
+// api that allows a user to access another user's file if and only if they are given permissions to by the other user
+api.get('/sfile/:user/:fileName', function(req, res) {
+	console.log("DB LOOKUP - other's profile");
+	db.profiles.get(req.params.user, function(err, body) {
+		// !((body.shared || {}).permissions || {})[req.params.fileName] is the test for !body.shared.permissions[req.params.fileName]
+		if (err || !((body.shared || {}).permissions || {})[req.params.fileName]) return res.sendStatus(400); // user or permission doesn't exist
+		if (body.shared.permissions[req.params.fileName].indexOf(req.user._id) !== -1) { // if permission is allowed
+			console.log("DB LOOKUP - " + req.params.fileName);
+			db.profiles.attachment.get(req.user._id, req.params.fileName, function(err, body) {
+				if (err) {
+					console.log("file probably not found");
+					return res.send("Error: file probably not found");
+				}
+				return res.send(""+body);
+			});	
+		} else { // if permission is not allowed, then erase the "access" on "this" profile
+			console.log("DB LOOKUP - this profile");
+			db.profiles.get(req.user._id, function(err, body) {
+				if (!body.shared) {
+					body.shared = {
+						"access": {},
+						"permissions": {}
+					};
+				} else if (!body.shared.access) {
+					body.shared.access = {};
+				} else if (body.shared.access[req.params.user]) { // access exists, then check 
+					body.shared.access[req.params.user] = body.shared.access[req.params.user].filter( function(ele) { return ele===req.params.fileName; } );
+				}
+				db.profiles.insert(body, function(err, body) {
+					return res.sendStatus(403); // permission denied
+				});
+			});
+		}
+	});
+});
+
 // TODO: fix unnecessary lookup. The script in the pug file refreshes the page so you have
 //       LOOKUP - deserializing - deserializing - attachments
 //       can probably remove one 'deserializing' if I send updated attachments from here
